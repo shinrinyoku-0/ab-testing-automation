@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime, UTC
-from . database import Base
+from .database import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -19,8 +19,12 @@ class FileUpload(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
+    exp_name = Column(String)
+    experiment_id = Column(String)
     json_filename = Column(String)
-    csv_filenames = Column(String)
+    exposures_filename = Column(String)
+    events_filename = Column(String)
+    users_filename = Column(String, nullable=True)
     selected_option = Column(String)
     upload_date = Column(DateTime, default=datetime.now(UTC))
 

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from .  import models, schemas
-from . auth import get_password_hash
+from . import models, schemas
+from .auth import get_password_hash
 
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
@@ -20,11 +20,20 @@ def create_user(db:  Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
-def create_file_upload(db: Session, user_id: int, json_filename: str, csv_filenames:  str, selected_option: str):
+def create_file_upload(
+        db: Session, user_id: int, exp_name:str,  
+        experiment_id: str, json_filename: str, 
+        exposures_filename:  str, events_filename: str,
+        users_filename: str | None, 
+        selected_option: str):
     db_upload = models.FileUpload(
         user_id=user_id,
+        exp_name=exp_name,
+        experiment_id=experiment_id,
         json_filename=json_filename,
-        csv_filenames=csv_filenames,
+        exposures_filename=exposures_filename,
+        events_filename=events_filename,
+        users_filename=users_filename,
         selected_option=selected_option
     )
     db.add(db_upload)

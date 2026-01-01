@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional, List
+from typing import Dict, Any
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -21,14 +21,21 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
+    username: str | None
 
 class FileUploadResponse(BaseModel):
     id: int
+    user_id: int
+    exp_name: str
+    experiment_id: str
     json_filename: str
-    csv_filenames: str
+    exposures_filename: str
+    events_filename: str
+    users_filename: str | None
     selected_option: str
     upload_date: datetime
+    analysis: Dict[str, Any] | None
+    processing_error: str | None
     
     class Config:
         from_attributes = True
