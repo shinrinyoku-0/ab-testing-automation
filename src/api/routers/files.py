@@ -8,7 +8,9 @@ from ..auth import get_current_user
 from ..models import User
 from ..crud import create_file_upload
 from ..schemas import FileUploadResponse
-from main_pipeline_v1 import load_files, validate_csv_structure, run_experiment_analysis
+from services.analysis import run_experiment_analysis
+from services.load import load_files
+from services.validate import validate_csv_structure
 
 router = APIRouter()
 
