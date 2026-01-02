@@ -346,12 +346,12 @@ const FileUpload = () => {
                       <span className="font-medium">Significant:</span>{' '}
                       <span
                         className={
-                          data.significant === 'YES'
+                          data.significance === 'YES'
                             ? 'text-green-600 font-bold'
                             : 'text-gray-600'
                         }
                       >
-                        {data.significant}
+                        {data.significance}
                       </span>
                     </div>
                     <div>
@@ -368,6 +368,18 @@ const FileUpload = () => {
                           <span className="font-medium">Variant B Rate:</span>{' '}
                           {(data.variant_b_rate * 100).toFixed(2)}%
                         </div>
+                        {data.variant_a_ci && (
+                          <div>
+                            <span>Variant A 95% CI:</span>{' '}
+                            [{(data.variant_a_ci[0] * 100).toFixed(2)}%, {(data.variant_a_ci[1] * 100).toFixed(2)}%]
+                          </div>
+                        )}
+                        {data.variant_b_ci && (
+                          <div>
+                            <span>Variant B 95% CI:</span>{' '}
+                            [{(data.variant_b_ci[0] * 100).toFixed(2)}%, {(data.variant_b_ci[1] * 100).toFixed(2)}%]
+                          </div>
+                        )}
                       </>
                     ) : (
                       <>
@@ -379,6 +391,18 @@ const FileUpload = () => {
                           <span className="font-medium">Variant B Mean:</span>{' '}
                           {data.variant_b_mean?.toFixed(2)}
                         </div>
+                        {data.variant_a_ci && (
+                          <div>
+                            <span>Variant A 95% CI:</span>{' '}
+                            [{data.variant_a_ci[0]?.toFixed(2)}, {data.variant_a_ci[1]?.toFixed(2)}]
+                          </div>
+                        )}
+                        {data.variant_b_ci && (
+                          <div>
+                            <span>Variant B 95% CI:</span>{' '}
+                            [{data.variant_b_ci[0]?.toFixed(2)}, {data.variant_b_ci[1]?.toFixed(2)}]
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
