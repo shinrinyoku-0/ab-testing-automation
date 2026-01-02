@@ -211,5 +211,5 @@ __marimo__/
 data/
 
 .venv/
-.uploads/
-.node_modules/
+uploads/
+node_modules/
