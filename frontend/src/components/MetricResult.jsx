@@ -1,3 +1,5 @@
+import TimeSeriesChart from "./TimeSeriesChart";
+
 const MetricResult = ({ metricId, data }) => {
   const isChiSquare = data.test === 'chi-square';
   
@@ -68,6 +70,11 @@ const MetricResult = ({ metricId, data }) => {
           </div>
         )}
       </div>
+      
+      {/* Display time-series chart */}
+      {data.timeseries && data.timeseries.length > 0 && (
+        <TimeSeriesChart timeseries={data.timeseries} metricId={metricId} />
+      )}
     </div>
   );
 };

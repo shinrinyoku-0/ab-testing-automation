@@ -1,12 +1,9 @@
 import pandas as pd
 
-def analyze_metric(exposure_events, user_events, metric_config):
+def _filter_events_by_metric(exposure_events, user_events, metric_config):
     """
-    Filter user uploaded data by each metric in json config.
-    1. Parse metric_config
-    2. Filter events by name
-    3. Filter by time window relative to exposure_time
-    4. Aggregate per user based on aggregation type
+    Filter and window events according to metric config.
+    Returns merged, windowed event data.
     """
 
     # make sure datetime columns are datetime type
@@ -34,10 +31,22 @@ def analyze_metric(exposure_events, user_events, metric_config):
     start = pd.Timedelta(metric_config['window']['start'])
     end = pd.Timedelta(metric_config['window']['end'])
 
+    # filter by window
+    
     in_window = merged[
         (merged['time_since_exposure'] >= start) &
         (merged['time_since_exposure'] <= end)
     ]
+
+    return in_window
+
+def analyze_metric(exposure_events, user_events, metric_config):
+    """
+    Aggregate by user
+    Clean and impute data
+    Format for statistical tests
+    """
+    in_window = _filter_events_by_metric(exposure_events, user_events, metric_config)
 
     # aggregate
     agg_type = metric_config['aggregation']
@@ -45,22 +54,72 @@ def analyze_metric(exposure_events, user_events, metric_config):
     result = pd.DataFrame()
 
     if agg_type == 'binary':
-        converted_users = in_window.groupby(['user_id', 'variant', 'experiment_id']).size().reset_index(name='metric_value')
+        converted_users = in_window.groupby(['user_id', 'variant']).size().reset_index(name='metric_value')
         converted_users['metric_value'] = 1
 
-        result = all_users.merge(converted_users, how='left', on=['user_id', 'variant', 'experiment_id'])
+        result = all_users.merge(converted_users, how='left', on=['user_id', 'variant'])
         result['metric_value'] = result['metric_value'].fillna(0)
         
     elif agg_type == 'sum':
         # users with purchase events, and therefore, event_value has revenue values
         purchased_users = in_window.groupby(['user_id', 'variant', 'experiment_id'])['event_value'].sum().reset_index(name='metric_value')
         
-        result = all_users.merge(purchased_users, how='left', on=['user_id', 'variant', 'experiment_id'])
+        result = all_users.merge(purchased_users, how='left', on=['user_id', 'variant'])
         result['metric_value'] = result['metric_value'].fillna(0)
 
     elif agg_type == 'count':
-        result = in_window.groupby(['user_id', 'variant', 'experiment_id']).size().reset_index(name='metric_value')
-        result = all_users.merge(result, how='left', on=['user_id', 'variant', 'experiment_id'])
+        result = in_window.groupby(['user_id', 'variant']).size().reset_index(name='metric_value')
+        result = all_users.merge(result, how='left', on=['user_id', 'variant'])
         result['metric_value'] = result['metric_value'].fillna(0)
 
-    return result[['user_id', 'variant', 'experiment_id', 'metric_value']]
+    return result[['user_id', 'variant', 'metric_value']]
+
+def analyze_metric_timeseries(exposure_events, user_events, metric_config):
+    """
+    Aggregate by date (used for time-series charts)
+    """
+
+    in_window = _filter_events_by_metric(exposure_events, user_events, metric_config)
+    agg_type = metric_config['aggregation']
+    result = pd.DataFrame()
+
+    # duration of window defined in metric_config
+    duration = (pd.to_timedelta(metric_config['window']['end']) - pd.to_timedelta(metric_config['window']['start'])).days
+    if duration < 3:
+        time_unit = 'H'
+    elif duration > 60:
+        time_unit = 'W'
+    else:
+        time_unit = 'D'
+
+    # add date column
+    in_window['date'] = in_window['event_time'].dt.floor(time_unit)
+
+    if agg_type == 'binary':
+        daily_conversions = in_window.groupby([
+            'date', 'variant', 'user_id'
+        ]).size().clip(upper=1).reset_index(name='converted')
+        result = daily_conversions.groupby(['date', 'variant']).agg({
+            'converted': 'sum',
+            'user_id': 'nunique'
+        }).reset_index()
+        result.columns = ['date', 'variant', 'conversions', 'user_count']
+        result['metric_value'] = result['conversions'] / result['user_count']
+    
+    elif agg_type == 'sum':
+        result = in_window.groupby(['date', 'variant']).agg({
+            'event_value': 'sum',
+            'user_id': 'nunique'
+        }).reset_index()
+        result.columns = ['date', 'variant', 'total_value', 'user_count']
+        result['metric_value'] = result['total_value'] / result['user_count']
+    
+    elif agg_type == 'count':
+        result = in_window.groupby(['date', 'variant']).agg({
+            'event_name': 'count',
+            'user_id': 'nunique'
+        }).reset_index()
+        result.columns = ['date', 'variant', 'total_count', 'user_count']
+        result['metric_value'] = result['total_count'] / result['user_count']
+
+    return result[['date', 'variant', 'metric_value', 'user_count']]

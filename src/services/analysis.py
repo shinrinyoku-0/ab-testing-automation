@@ -1,4 +1,4 @@
-from .metric_analysis import analyze_metric
+from .metric_analysis import analyze_metric, analyze_metric_timeseries
 from .stat_tests import run_stat_tests
 
 def run_experiment_analysis(experiment_id, exposures_df, events_df, metrics_config):
@@ -15,8 +15,13 @@ def run_experiment_analysis(experiment_id, exposures_df, events_df, metrics_conf
     results = {}
 
     for _, metric_config in metrics_config.items():
+        # user-level analysis for stats
         metric_df = analyze_metric(exp_exposures, events_df, metric_config)
         analysis = run_stat_tests(metric_df, metric_config)
+
+        # time-series analysis for charts
+        timeseries_df = analyze_metric_timeseries(exp_exposures, events_df, metric_config)
+        analysis['timeseries'] = timeseries_df.to_dict('records')
         results[metric_config['metric_id']] = analysis
 
     return results
