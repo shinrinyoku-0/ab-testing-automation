@@ -2,7 +2,7 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Register from './components/Register';
 import Login from './components/Login';
-import FileUpload from './components/FileUpload';
+import Dashboard from './components/Dashboard';
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -17,10 +17,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route
-          path="/upload"
+          path="/dashboard"
           element={
             <PrivateRoute>
-              <FileUpload />
+              <Dashboard />
             </PrivateRoute>
           }
         />

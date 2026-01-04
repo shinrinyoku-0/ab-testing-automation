@@ -1,45 +1,63 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../services/api';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    username:  '',
     password: '',
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccess(location.state.message);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e. target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
       const data = await login(formData.username, formData.password);
       localStorage.setItem('token', data.access_token);
-      navigate('/upload');
+      navigate('/dashboard');
     } catch (err) {
-      setError(err. response?.data?.detail || 'Login failed');
+      setError(err.response?.data?.detail || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+        
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
+        
+        {success && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {success}
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -70,16 +88,16 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-blue-300 transition-colors"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm">
+        <p className="mt-4 text-center text-sm text-gray-600">
           Don't have an account?{' '}
           <button
             onClick={() => navigate('/register')}
-            className="text-white hover:underline"
+            className="text-blue-500 hover:underline font-semibold"
           >
             Register
           </button>

@@ -2,12 +2,12 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from services.sample_size import calculate_sample_size
 from ..schemas import SampleSizeRequest, SampleSizeResponse
-from auth import get_current_user
+from ..auth import get_current_user
 from ..models import User
 
 router = APIRouter()
 
-@router.post("/api/sample-size", response_model=SampleSizeResponse)
+@router.post("/sample-size", response_model=SampleSizeResponse)
 async def calculate_sample_size_endpoint(
     request: SampleSizeRequest,
     current_user: User = Depends(get_current_user)):
@@ -54,7 +54,7 @@ async def calculate_sample_size_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Calculation failed: {str(e)}")
 
-@router.get("/api/sample-size/defaults")
+@router.get("/sample-size/defaults")
 async def get_sample_size_defaults(
     current_user: User = Depends(get_current_user)
 ):
