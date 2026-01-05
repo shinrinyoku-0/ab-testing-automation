@@ -214,3 +214,6 @@ data/
 uploads/
 node_modules/
 .vscode/settings.json
+.env
+docker-compose.override.yml
+postgres_data/
