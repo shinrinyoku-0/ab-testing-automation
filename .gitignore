@@ -213,3 +213,4 @@ data/
 .venv/
 uploads/
 node_modules/
+.vscode/settings.json
