@@ -22,16 +22,20 @@ export const useFileUpload = () => {
     const fetchOptions = async () => {
       try {
         const data = await getUploadOptions();
-        setOptions(data. options);
+        setOptions(data.options);
         if (data.options.length > 0) {
-          setSelectedOption(data.options[0].value);
+          setSelectedOption(data.options[0]. value);
         }
       } catch (err) {
         console.error('Failed to fetch options', err);
+        // If unauthorized, redirect to login
+        if (err.response?.status === 401) {
+          navigate('/login');
+        }
       }
     };
     fetchOptions();
-  }, []);
+  }, [navigate]);
 
   // validation helper
   const validateFile = (file, expectedExtension, errorMessage) => {
@@ -55,7 +59,7 @@ export const useFileUpload = () => {
   };
 
   const handleExposuresFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target. files[0];
     if (validateFile(file, '.csv', 'Exposures file must be CSV')) {
       setExposuresFile(file);
     } else {
@@ -73,7 +77,7 @@ export const useFileUpload = () => {
   };
 
   const handleUsersFileChange = (e) => {
-    const file = e.target. files[0];
+    const file = e.target.files[0];
     if (validateFile(file, '.csv', 'Users file must be CSV')) {
       setUsersFile(file);
     } else {
@@ -105,7 +109,7 @@ export const useFileUpload = () => {
     setAnalysisResults(null);
 
     // Validation
-    if (!experimentId.trim()) {
+    if (!experimentId. trim()) {
       setError('Please enter an experiment ID');
       return;
     }
@@ -152,16 +156,11 @@ export const useFileUpload = () => {
       if (err.response?.status === 401) {
         navigate('/login');
       } else {
-        setError(err.response?. data?.detail || 'Upload failed');
+        setError(err.response?.data?.detail || 'Upload failed');
       }
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
   };
 
   return {
@@ -188,6 +187,5 @@ export const useFileUpload = () => {
     handleEventsFileChange,
     handleUsersFileChange,
     handleSubmit,
-    handleLogout,
   };
 };

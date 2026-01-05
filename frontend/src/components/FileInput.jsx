@@ -1,4 +1,10 @@
 import React from "react";
+import { Card } from "./ui/Card";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { Label } from "./ui/Label";
+import { Alert } from "./ui/Alert";
+import { Badge } from "./ui/Badge";
 
 const FileInput = ({
   id,
@@ -10,30 +16,30 @@ const FileInput = ({
   helperText
 }) => {
   return (
-    <div className="mb-4">
-      <label className="block text-gray-700 text-sm font-bold mb-2">
+    <Card className="space-y-4 p-4">
+      <Label htmlFor={id}>
         {label} {required && '*'}
-      </label>
-      <input 
+      </Label>
+      <Input 
         id={id}
         type="file"
         accept={accept}
         onChange={onChange}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full"
         required={required}
       />
       {file && (
-        <p className="text-sm text-green-600 mt-2">
-            Uploaded: {file.name}
-        </p>
+        <Badge className="text-sm">
+          Uploaded: {file.name}
+        </Badge>
       )}
       {helperText && (
-        <p className="text-xs text-gray-500 mt-1">
-            {helperText}
-        </p>
+        <Alert className="text-xs text-gray-500">
+          {helperText}
+        </Alert>
       )}
-        </div>
-    );
+    </Card>
+  );
 };
 
 export default FileInput;

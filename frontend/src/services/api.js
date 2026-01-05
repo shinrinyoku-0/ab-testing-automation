@@ -59,4 +59,24 @@ export const uploadFiles = async (
   return response.data;
 };
 
+export const calculateSampleSize = async (data) => {
+  const response = await api.post('/sample-size', data);
+  return response.data;
+};
+
+export const getSampleSizeDefaults = async () => {
+  const response = await api.get('/sample-size/defaults');
+  return response.data;
+};
+
+export const recommendTest = async (data) => {
+  const response = await api.post('/recommend-test', data);
+  return response.data;
+};
+
+export const getTestOptions = async () => {
+  const response = await api.get('/test-options');
+  return response.data;
+};
+
 export default api;
