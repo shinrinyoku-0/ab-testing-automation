@@ -8,6 +8,8 @@ RUN npm install
 
 COPY . .
 
+ENV NODE_ENV=production
+
 RUN npm run build
 
 RUN npm install -g serve
