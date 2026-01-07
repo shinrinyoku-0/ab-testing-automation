@@ -11,7 +11,7 @@ app = FastAPI(title="A/B Testing Experimentation Platform")
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # React dev server
+    allow_origins=["http://localhost:3000", "http://localhost:5173", "https://ab-testing-frontend.onrender.com"],  # React dev server
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
