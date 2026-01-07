@@ -19,4 +19,4 @@ EXPOSE 8000
 
 ENTRYPOINT ["/init_db.sh"]
 
-CMD ["fastapi", "dev", "api/main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
