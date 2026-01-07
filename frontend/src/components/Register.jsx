@@ -25,6 +25,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    console.log('API URL:', import.meta.env.VITE_API_URL);
     setSuccess(false);
     setLoading(true);
 
