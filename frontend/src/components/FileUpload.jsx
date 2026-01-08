@@ -33,13 +33,13 @@ const FileUpload = () => {
     <div className="w-full max-w-2xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
       <Card>
         {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
-          <p className="text-xs sm:text-sm text-blue-800">
+        <div className="bg-primary border border-blue-200 rounded-md p-4 mb-6">
+          <p className="text-xs sm:text-sm text-primary-content">
             <strong>This tool is designed for event-based A/B test data (web/mobile analytics).</strong>
             <br />
             Expected format:
           </p>
-          <ul className="text-xs text-blue-700 mt-2 ml-4 list-disc">
+          <ul className="text-xs text-primary-content mt-2 ml-4 list-disc">
             <li>Exposures: user_id, experiment_id, variant, exposure_time</li>
             <li>Events: user_id, event_name, event_time, event_value (optional)</li>
             <li>Users: user_id + any demographic columns (optional)</li>
