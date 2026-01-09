@@ -48,8 +48,8 @@ const Login = () => {
         <CardBody className="p-6">
           <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
           
-          {error && <Alert variant="faded" color="danger" title={error} />}
-          {success && <Alert variant="faded" color="success" title={success} />}
+          {error && <Alert variant="faded" color="danger" title={error} className="mb-4" />}
+          {success && <Alert variant="faded" color="success" title={success} className="mb-4" />}
           
           <Form validationBehavior="native" onSubmit={handleSubmit} className="space-y-4">
             <Input

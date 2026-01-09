@@ -36,21 +36,18 @@ const FileUpload = () => {
       {/* Sample Data Card */}
       <Card className="mb-6">
         <CardBody>
-          <div className="flex items-start gap-3 mb-4">
-            <div className="p-2 bg-blue-100 rounded-full">
-              <SparklesIcon className="w-6 h-6 text-blue-600" />
-            </div>
+          <div className="flex items-start gap-3 p-4">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-1">
+              <h3 className="text-2xl font-semibold mb-1">
                 New to AB testing analysis?
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-medium text-gray-600">
                 See how it works with a demo dataset showing homepage redesign test results.
               </p>
             </div>
           </div>
           
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-4 m-4">
             <Button
               color="primary"
               variant="solid"
@@ -78,17 +75,18 @@ const FileUpload = () => {
         <Alert 
           variant="faded"
           color="primary" 
-          title="You're viewing a demo dataset. Upload your own files to analyze real data." />
+          title="You're viewing a demo dataset. Upload your own files to analyze real data." 
+          className="mb-4" />
       )}
 
       <Card>
         <CardBody>
           {/* Info Box */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <p className="text-sm">
+            <p className="text-xl">
               <strong>This tool is designed for event-based A/B test data (web/mobile analytics).</strong>
             </p>
-            <ul className="text-xs mt-2 ml-4 list-disc">
+            <ul className="text-medium mt-2 ml-4 list-disc">
               <li>Exposures: user_id, experiment_id, variant, exposure_time</li>
               <li>Events: user_id, event_name, event_time, event_value (optional)</li>
               <li>Users: user_id + any demographic columns (optional)</li>
@@ -96,14 +94,14 @@ const FileUpload = () => {
           </div>
 
           {/* Alerts */}
-          {error && <Alert variant="faded" color="danger" title={error} />}
-          {success && <Alert variant="faded" color="success" title={success} />}
+          {error && <Alert variant="faded" color="danger" title={error} className="mb-4" />}
+          {success && <Alert variant="faded" color="success" title={success} className="mb-4" />}
 
           {/* Form */}
           <Form validationBehavior="native" onSubmit={handleSubmit} className="space-y-6">
           {/* Experiment Details Group */}
             <div className="space-y-4 pb-6 border-b">
-              <h3 className="text-md font-semibold">Experiment Details</h3>
+              <h3 className="text-large font-semibold">Experiment Details</h3>
             {/* Data Source Type */}
             <Select
               label="Data Source Type"
@@ -147,7 +145,7 @@ const FileUpload = () => {
 
           {/* File Upload Group */}
           <div className="space-y-4">
-            <h3 className="text-md font-semibold">Upload Files</h3>
+            <h3 className="text-large font-semibold">Upload Files</h3>
             
             <FileInput
               id="jsonFile"

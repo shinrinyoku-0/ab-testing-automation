@@ -44,16 +44,16 @@ const SampleSizeCalculator = () => {
         <CardBody className="p-6 space-y-6">
           <div>
             <h2 className="text-2xl font-bold">Sample Size Calculator</h2>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-medium text-gray-600 mt-2">
               Calculate how many users you need per variant to detect a meaningful change
             </p>
           </div>
 
           {/* Info Alert */}
-          <Alert variant="faded" color="primary" title="Enter your current conversion rate and the minimum improvement you want to detect. This calculator uses a two-tailed test." />
+          <Alert variant="faded" color="primary" title="Enter your current conversion rate and the minimum improvement you want to detect. This calculator uses a two-tailed test." className="mb-4" />
 
           {/* Error Alert */}
-          {error && <Alert variant="faded" color="danger" title={error} />}
+          {error && <Alert variant="faded" color="danger" title={error} className="mb-4" />}
 
           <div className="space-y-6">
             {/* Baseline Rate */}

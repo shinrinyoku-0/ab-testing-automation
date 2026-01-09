@@ -5,7 +5,7 @@ const TimeSeriesChart = ({ timeseries, metricId }) => {
   if (!timeseries || timeseries.length === 0) {
     return (
       <div className="mt-6">
-        <Alert variant="faded" color="primary" title="No time-series data available" />
+        <Alert variant="faded" color="primary" title="No time-series data available" className="mb-4" />
       </div>
     );
   }
@@ -183,6 +183,7 @@ const TimeSeriesChart = ({ timeseries, metricId }) => {
         variant="faded"
         color="primary" 
         title="Chart Tips: Hover over points to see exact values. Use zoom tools to focus on specific time periods. Double-click to reset zoom. Click legend items to show/hide variants. Download as PNG using the camera icon." 
+        className="mb-4"
       />
 
       {/* Variant badges */}

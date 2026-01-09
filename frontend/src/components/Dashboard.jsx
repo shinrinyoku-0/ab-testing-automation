@@ -22,7 +22,7 @@ export const Dashboard = () => {
             <h1 className="text-3xl font-bold">
               A/B Testing Platform
             </h1>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-medium text-gray-600 mt-2">
               Analyze experiments, calculate sample sizes, and make data-driven decisions
             </p>
           </div>

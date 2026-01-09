@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import Papa from 'papaparse';
 import { Card, CardBody, CardHeader, Button, Spinner } from '@heroui/react';
+import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from "@heroui/table";
 
 const FilePreviewModal = ({ file, fileType, onClose }) => {
   const [content, setContent] = useState(null);
@@ -51,7 +52,6 @@ const FilePreviewModal = ({ file, fileType, onClose }) => {
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={onClose}
     >
       <Card 
         className="max-w-5xl w-full max-h-[90vh] flex flex-col"
@@ -97,52 +97,29 @@ const FilePreviewModal = ({ file, fileType, onClose }) => {
               <div className="mb-2 text-sm text-gray-600">
                 Showing first {content.rows.length} of {content.totalRows} rows
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y border">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      {content.headers.map((header, idx) => (
-                        <th
-                          key={idx}
-                          className="px-4 py-2 text-left text-xs font-medium uppercase whitespace-nowrap"
-                        >
-                          {header}
-                        </th>
+              <Table aria-label="CSV data preview">
+                <TableHeader>
+                  {content.headers.map((header, idx) => (
+                    <TableColumn key={idx}>{header}</TableColumn>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {content.rows.map((row, rowIdx) => (
+                    <TableRow key={rowIdx}>
+                      {content.headers.map((header, colIdx) => (
+                        <TableCell key={colIdx}>
+                          {row[header] !== null && row[header] !== undefined
+                            ? String(row[header])
+                            : ''}
+                        </TableCell>
                       ))}
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y">
-                    {content.rows.map((row, rowIdx) => (
-                      <tr key={rowIdx} className="hover:bg-gray-50">
-                        {content.headers.map((header, colIdx) => (
-                          <td
-                            key={colIdx}
-                            className="px-4 py-2 text-sm whitespace-nowrap"
-                          >
-                            {row[header] !== null && row[header] !== undefined
-                              ? String(row[header])
-                              : ''}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardBody>
-
-        {/* Footer */}
-        <div className="p-4 border-t flex justify-end">
-          <Button
-            onPress={onClose}
-            color="default"
-            variant="flat"
-          >
-            Close
-          </Button>
-        </div>
       </Card>
     </div>
   );

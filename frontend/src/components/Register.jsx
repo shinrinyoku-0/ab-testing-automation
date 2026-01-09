@@ -44,8 +44,8 @@ const Register = () => {
         <CardBody className="p-6">
           <h2 className="text-2xl font-bold text-center mb-6">Register</h2>
           
-          {error && <Alert variant="faded" color="danger" title={error} />}
-          {success && <Alert variant="faded" color="success" title="Registration successful! Redirecting to login..." />}
+          {error && <Alert variant="faded" color="danger" title={error} className="mb-4" />}
+          {success && <Alert variant="faded" color="success" title="Registration successful! Redirecting to login..." className="mb-4" />}
           
           <Form validationBehavior="native" onSubmit={handleSubmit} className="space-y-4">
             <Input
