@@ -112,27 +112,21 @@ export const loadSampleData = async () => {
 
 
 export const downloadSampleFiles = async () => {
-  const files = [
-    'metrics_config.json',
-    'exposures.csv',
-    'events.csv',
-    'users.csv'
-  ];
-
-  for (const filename of files) {
-    const response = await fetch(`/sample_data/${filename}`);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-    // small delay between downloads to avoid browser blocking
-    await new Promise(resolve => setTimeout(resolve, 100));
+  const response = await fetch('/sample_data/ab-testing-sample-data.zip');
+  
+  if (!response.ok) {
+    throw new Error('Failed to download sample files');
   }
+  
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ab-testing-sample-data.zip';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
 };
 
 export default api;
