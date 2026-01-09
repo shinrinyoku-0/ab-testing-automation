@@ -1,9 +1,8 @@
 import { useFileUpload } from '../hooks/useFileUpload';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
-import { Alert } from './ui/Alert';
+import { Alert, Card, CardBody, Button, Select, SelectItem, Input, Form } from '@heroui/react';
 import FileInput from './FileInput';
 import MetricResult from './MetricResult';
+import { SparklesIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 const FileUpload = () => {
   const {
@@ -22,90 +21,134 @@ const FileUpload = () => {
     success,
     loading,
     analysisResults,
+    isUsingSampleData,
     handleJsonFileChange,
     handleExposuresFileChange,
     handleEventsFileChange,
     handleUsersFileChange,
     handleSubmit,
+    handleLoadSampleData,
+    handleDownloadSamples,
   } = useFileUpload();
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+    <div className="w-full max-w-2xl mx-auto px-4 py-4">
+      {/* Sample Data Card */}
+      <Card className="mb-6">
+        <CardBody>
+          <div className="flex items-start gap-3 mb-4">
+            <div className="p-2 bg-blue-100 rounded-full">
+              <SparklesIcon className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold mb-1">
+                New to AB testing analysis?
+              </h3>
+              <p className="text-sm text-gray-600">
+                See how it works with a demo dataset showing homepage redesign test results.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-3">
+            <Button
+              color="primary"
+              variant="solid"
+              onPress={handleLoadSampleData}
+              isDisabled={loading}
+              startContent={<SparklesIcon className="w-4 h-4" />}
+            >
+              Try with Sample Data
+            </Button>
+            
+            <Button
+              color="default"
+              variant="bordered"
+              onPress={handleDownloadSamples}
+              startContent={<ArrowDownTrayIcon className="w-4 h-4" />}
+            >
+              Download Samples
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* Sample Data Banner */}
+      {isUsingSampleData && (
+        <Alert 
+          variant="faded"
+          color="primary" 
+          title="You're viewing a demo dataset. Upload your own files to analyze real data." />
+      )}
+
       <Card>
-        {/* Info Box */}
-        <div className="bg-primary border border-blue-200 rounded-md p-4 mb-6">
-          <p className="text-xs sm:text-sm text-primary-content">
-            <strong>This tool is designed for event-based A/B test data (web/mobile analytics).</strong>
-            <br />
-            Expected format:
-          </p>
-          <ul className="text-xs text-primary-content mt-2 ml-4 list-disc">
-            <li>Exposures: user_id, experiment_id, variant, exposure_time</li>
-            <li>Events: user_id, event_name, event_time, event_value (optional)</li>
-            <li>Users: user_id + any demographic columns (optional)</li>
-          </ul>
-        </div>
+        <CardBody>
+          {/* Info Box */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <p className="text-sm">
+              <strong>This tool is designed for event-based A/B test data (web/mobile analytics).</strong>
+            </p>
+            <ul className="text-xs mt-2 ml-4 list-disc">
+              <li>Exposures: user_id, experiment_id, variant, exposure_time</li>
+              <li>Events: user_id, event_name, event_time, event_value (optional)</li>
+              <li>Users: user_id + any demographic columns (optional)</li>
+            </ul>
+          </div>
 
-        {/* Alerts */}
-        {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
-        {success && <Alert variant="success" className="mb-4">{success}</Alert>}
+          {/* Alerts */}
+          {error && <Alert variant="faded" color="danger" title={error} />}
+          {success && <Alert variant="faded" color="success" title={success} />}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-          {/* Data Source Type */}
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Data Source Type
-            </label>
-            <select
-              value={selectedOption}
+          {/* Form */}
+          <Form validationBehavior="native" onSubmit={handleSubmit} className="space-y-6">
+          {/* Experiment Details Group */}
+            <div className="space-y-4 pb-6 border-b">
+              <h3 className="text-md font-semibold">Experiment Details</h3>
+            {/* Data Source Type */}
+            <Select
+              label="Data Source Type"
+              placeholder="Select data source"
+              selectedKeys={[selectedOption]}
               onChange={(e) => setSelectedOption(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
+              isRequired
+              variant="faded"
+              color="default"
             >
               {options.map((option) => (
-                <option key={option.value} value={option.value}>
+                <SelectItem key={option.value} value={option.value}>
                   {option.label}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-          </div>
+            </Select>
 
-          {/* Experiment Name */}
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Experiment Name
-            </label>
-            <input
+            {/* Experiment Name */}
+            <Input
               type="text"
+              label="Experiment Name"
+              placeholder="e.g., Homepage Redesign Test"
               value={experimentName}
               onChange={(e) => setExperimentName(e.target.value)}
-              placeholder="e.g., Homepage Redesign Test"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
+              isRequired
+              variant="bordered"
             />
-          </div>
 
-          {/* Experiment ID */}
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Experiment ID
-            </label>
-            <input
+            {/* Experiment ID */}
+            <Input
               type="text"
+              label="Experiment ID"
+              placeholder="e.g., 0 or exp_123"
               value={experimentId}
               onChange={(e) => setExperimentId(e.target.value)}
-              placeholder="e.g., 0 or exp_123"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
+              description="This should match the experiment_id in your exposures CSV"
+              isRequired
+              variant="bordered"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              This should match the experiment_id in your exposures CSV
-            </p>
           </div>
 
-          {/* File Inputs */}
+          {/* File Upload Group */}
           <div className="space-y-4">
+            <h3 className="text-md font-semibold">Upload Files</h3>
+            
             <FileInput
               id="jsonFile"
               label="Metrics Config (JSON)"
@@ -146,25 +189,27 @@ const FileUpload = () => {
           {/* Submit Button */}
           <Button
             type="submit"
-            variant="primary"
-            disabled={loading}
+            color="primary"
+            variant="solid"
+            isDisabled={loading}
             className="w-full"
           >
             {loading ? 'Processing...' : 'Upload & Run Analysis'}
           </Button>
-        </form>
+          </Form>
 
-        {/* Display Results */}
-        {analysisResults && (
-          <div className="mt-8">
-            <h3 className="text-lg sm:text-xl font-bold mb-4">Analysis Results</h3>
-            <div className="space-y-4">
-              {Object.entries(analysisResults).map(([metricId, data]) => (
-                <MetricResult key={metricId} metricId={metricId} data={data} />
-              ))}
+          {/* Display Results */}
+          {analysisResults && (
+            <div className="mt-8">
+              <h3 className="text-lg font-bold mb-4">Analysis Results</h3>
+              <div className="space-y-4">
+                {Object.entries(analysisResults).map(([metricId, data]) => (
+                  <MetricResult key={metricId} metricId={metricId} data={data} />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </CardBody>
       </Card>
     </div>
   );

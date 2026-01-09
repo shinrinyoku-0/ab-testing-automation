@@ -1,11 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../services/api';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
-import { Input } from './ui/Input';
-import { Label } from './ui/Label';
-import { Alert } from './ui/Alert';
+import { Card, CardBody, Button, Input, Link, Form, Alert } from '@heroui/react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -43,94 +39,71 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
-      <Card className="w-full max-w-md sm:max-w-lg">
-        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Register</h2>
-        
-        <div className="space-y-4">
-          {error && (
-            <Alert variant="error">
-              {error}
-            </Alert>
-          )}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <Card className="w-full max-w-md">
+        <CardBody className="p-6">
+          <h2 className="text-2xl font-bold text-center mb-6">Register</h2>
           
-          {success && (
-            <Alert variant="success">
-              Registration successful! Redirecting to login...
-            </Alert>
-          )}
+          {error && <Alert variant="faded" color="danger" title={error} />}
+          {success && <Alert variant="faded" color="success" title="Registration successful! Redirecting to login..." />}
           
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                disabled={success}
-              />
-            </div>
+          <Form validationBehavior="native" onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Email"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              isRequired
+              isDisabled={success}
+              variant="bordered"
+            />
 
-            <div className="space-y-2">
-              <Label htmlFor="username">
-                Username
-              </Label>
-              <Input
-                id="username"
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-                disabled={success}
-              />
-            </div>
+            <Input
+              label="Username"
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              isRequired
+              isDisabled={success}
+              variant="bordered"
+            />
 
-            <div className="space-y-2">
-              <Label htmlFor="password">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                disabled={success}
-                minLength={6}
-              />
-              <p className="text-xs text-gray-500">
-                Must be at least 6 characters
-              </p>
-            </div>
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              description="Must be at least 6 characters"
+              isRequired
+              isDisabled={success}
+              variant="bordered"
+            />
 
             <Button
               type="submit"
-              variant="primary"
-              disabled={loading || success}
+              color="primary"
+              variant="solid"
+              isDisabled={loading || success}
               className="w-full"
             >
               {loading ? 'Registering...' : success ? 'Redirecting...' : 'Register'}
             </Button>
-          </form>
+          </Form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <Button
-              variant="link"
-              onClick={() => navigate('/login')}
-              className="font-semibold"
-            >
-              Login
-            </Button>
-          </p>
-        </div>
+            <p className="text-center text-sm text-gray-600 mt-4">
+              Already have an account?{' '}
+              <Link
+                onPress={() => navigate('/login')}
+                className="cursor-pointer font-semibold"
+                color="primary"
+              >
+                Login
+              </Link>
+            </p>
+        </CardBody>
       </Card>
     </div>
   );

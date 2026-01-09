@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../services/api';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
-import { Input } from './ui/Input';
-import { Label } from './ui/Label';
-import { Alert } from './ui/Alert';
+import { Card, CardBody, Button, Input, Link, Form, Alert } from '@heroui/react';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -49,60 +45,57 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <Card className="w-full max-w-md">
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-center">Login</h2>
+        <CardBody className="p-6">
+          <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
           
-          {error && <Alert variant="error">{error}</Alert>}
-          {success && <Alert variant="success">{success}</Alert>}
+          {error && <Alert variant="faded" color="danger" title={error} />}
+          {success && <Alert variant="faded" color="success" title={success} />}
           
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Enter your username"
-                required
-              />
-            </div>
+          <Form validationBehavior="native" onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Username"
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Enter your username"
+              isRequired
+              variant="bordered"
+            />
             
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                required
-              />
-            </div>
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              isRequired
+              variant="bordered"
+            />
             
             <Button
               type="submit"
-              variant="primary"
-              disabled={loading}
+              color="primary"
+              variant="solid"
+              isDisabled={loading}
               className="w-full"
             >
               {loading ? 'Logging in...' : 'Login'}
             </Button>
-          </form>
+          </Form>
           
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-600 mt-4">
             Don't have an account?{' '}
-            <Button
-              variant="link"
-              onClick={() => navigate('/register')}
-              className='m-4'
+            <Link
+              onPress={() => navigate('/register')}
+              className="cursor-pointer"
+              color="primary"
             >
               Register
-            </Button>
+            </Link>
           </p>
-        </div>
+        </CardBody>
       </Card>
     </div>
   );

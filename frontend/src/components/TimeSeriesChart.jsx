@@ -1,15 +1,11 @@
 import Plot from "react-plotly.js";
-import { Card } from "./ui/Card";
-import { Alert } from "./ui/Alert";
-import { Badge } from "./ui/Badge";
+import { Card, CardBody, Chip, Alert } from "@heroui/react";
 
 const TimeSeriesChart = ({ timeseries, metricId }) => {
   if (!timeseries || timeseries.length === 0) {
     return (
       <div className="mt-6">
-        <Alert variant="info">
-          <p className="text-sm">No time-series data available</p>
-        </Alert>
+        <Alert variant="faded" color="primary" title="No time-series data available" />
       </div>
     );
   }
@@ -155,10 +151,10 @@ const TimeSeriesChart = ({ timeseries, metricId }) => {
   };
 
   return (
-    <div className="mt-6 space-y-4 md:space-y-6 px-4 sm:px-0">
+    <div className="space-y-4">
       {/* Metric value chart */}
-      <Card className="p-4 md:p-6">
-        <div className="w-full overflow-x-auto">
+      <Card>
+        <CardBody>
           <Plot
             data={metricTraces}
             layout={metricLayout}
@@ -166,12 +162,12 @@ const TimeSeriesChart = ({ timeseries, metricId }) => {
             style={{ width: '100%', minWidth: '300px' }}
             useResizeHandler={true}
           />
-        </div>
+        </CardBody>
       </Card>
 
       {/* Sample size chart */}
-      <Card className="p-4 md:p-6">
-        <div className="w-full overflow-x-auto">
+      <Card>
+        <CardBody>
           <Plot
             data={sampleTraces}
             layout={sampleLayout}
@@ -179,34 +175,28 @@ const TimeSeriesChart = ({ timeseries, metricId }) => {
             style={{ width: '100%', minWidth: '300px' }}
             useResizeHandler={true}
           />
-        </div>
+        </CardBody>
       </Card>
 
       {/* Data summary */}
-      <Alert variant="info" className="space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="text-lg">💡</span>
-          <p className="font-semibold">Chart Tips</p>
-        </div>
-        <ul className="ml-4 space-y-2 list-disc text-sm">
-          <li>Hover over points to see exact values</li>
-          <li>Use zoom tools to focus on specific time periods</li>
-          <li>Double-click to reset zoom</li>
-          <li>Click legend items to show/hide variants</li>
-          <li>Download as PNG using the camera icon</li>
-        </ul>
-      </Alert>
+      <Alert 
+        variant="faded"
+        color="primary" 
+        title="Chart Tips: Hover over points to see exact values. Use zoom tools to focus on specific time periods. Double-click to reset zoom. Click legend items to show/hide variants. Download as PNG using the camera icon." 
+      />
 
       {/* Variant badges */}
-      <Card className="p-4 md:p-6">
-        <p className="text-sm font-semibold mb-3">Active Variants</p>
-        <div className="flex flex-wrap gap-2">
-          {variants.map(variant => (
-            <Badge key={variant} variant="secondary">
-              Variant {variant}
-            </Badge>
-          ))}
-        </div>
+      <Card>
+        <CardBody>
+          <p className="text-sm font-semibold mb-3">Active Variants</p>
+          <div className="flex flex-wrap gap-2">
+            {variants.map(variant => (
+              <Chip key={variant} color="secondary" variant="flat">
+                Variant {variant}
+              </Chip>
+            ))}
+          </div>
+        </CardBody>
       </Card>
     </div>
   );

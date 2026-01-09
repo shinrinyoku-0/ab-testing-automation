@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { uploadFiles, getUploadOptions } from '../services/api';
+import { uploadFiles, getUploadOptions, loadSampleData, downloadSampleFiles } from '../services/api';
 
 export const useFileUpload = () => {
   const [jsonFile, setJsonFile] = useState(null);
@@ -15,6 +15,7 @@ export const useFileUpload = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [analysisResults, setAnalysisResults] = useState(null);
+  const [isUsingSampleData, setIsUsingSampleData] = useState(false);
   const navigate = useNavigate();
 
   // fetch upload options on mount
@@ -85,6 +86,39 @@ export const useFileUpload = () => {
     }
   };
 
+  const handleLoadSampleData = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const sampleData = await loadSampleData();
+
+      setJsonFile(sampleData.jsonFile);
+      setExposuresFile(sampleData.exposuresFile);
+      setEventsFile(sampleData.eventsFile);
+      setUsersFile(sampleData.usersFile);
+      setExperimentName(sampleData.experimentName);
+      setExperimentId(sampleData.experimentId);
+
+      setIsUsingSampleData(true);
+      setSuccess('Using sample data. Click "Upload & Run Analysis" to see results.');
+    } catch (err) {
+      setError('Failed to load sample data. Please try again.');
+      console.error('Error loading sample data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownloadSamples = async () => {
+    try {
+      await downloadSampleFiles();
+    } catch (err) {
+      setError('Failed to download sample files');
+      console.error('Error downloading samples:', err);
+    }
+  };
+
   // reset form
   const resetForm = () => {
     setJsonFile(null);
@@ -93,6 +127,7 @@ export const useFileUpload = () => {
     setUsersFile(null);
     setExperimentName('');
     setExperimentId('');
+    setIsUsingSampleData(false);
 
     // Reset file inputs
     ['jsonFile', 'exposuresFile', 'eventsFile', 'usersFile'].forEach(id => {
@@ -150,7 +185,6 @@ export const useFileUpload = () => {
         setSuccess('Files uploaded and analyzed successfully!');
         setAnalysisResults(response.analysis);
       }
-
       resetForm();
     } catch (err) {
       if (err.response?.status === 401) {
@@ -164,7 +198,6 @@ export const useFileUpload = () => {
   };
 
   return {
-    // State
     jsonFile,
     exposuresFile,
     eventsFile,
@@ -180,6 +213,7 @@ export const useFileUpload = () => {
     success,
     loading,
     analysisResults,
+    isUsingSampleData,
     
     // Handlers
     handleJsonFileChange,
@@ -187,5 +221,7 @@ export const useFileUpload = () => {
     handleEventsFileChange,
     handleUsersFileChange,
     handleSubmit,
+    handleLoadSampleData,
+    handleDownloadSamples,
   };
 };

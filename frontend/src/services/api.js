@@ -23,7 +23,6 @@ export const login = async (username, password) => {
   const formData = new FormData();
   formData.append('username', username);
   formData.append('password', password);
-  
   const response = await api.post('/users/token', formData);
   return response.data;
 };
@@ -46,11 +45,9 @@ export const uploadFiles = async (
   formData.append('json_file', jsonFile);
   formData.append('selected_option', selectedOption);
   formData.append('experiment_name', experimentName);
-  
   if (usersFile) {
     formData.append('users_file', usersFile);
   }
-
   const response = await api.post('/files/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -77,6 +74,65 @@ export const recommendTest = async (data) => {
 export const getTestOptions = async () => {
   const response = await api.get('/test-options');
   return response.data;
+};
+
+const fetchSampleFile = async (filename) => {
+  const response = await fetch(`/sample_data/${filename}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${filename}`);
+  }
+  const blob = await response.blob();
+  
+  // Determine MIME type
+  let mimeType = 'text/csv';
+  if (filename.endsWith('.json')) {
+    mimeType = 'application/json';
+  }
+  
+  return new File([blob], filename, { type: mimeType });
+};
+
+export const loadSampleData = async () => {
+  const [jsonFile, exposuresFile, eventsFile, usersFile] = await Promise.all([
+    fetchSampleFile('metrics_config.json'),
+    fetchSampleFile('exposures.csv'),
+    fetchSampleFile('events.csv'),
+    fetchSampleFile('users.csv'),
+  ]);
+
+  return {
+    jsonFile,
+    exposuresFile,
+    eventsFile,
+    usersFile,
+    experimentName: 'Homepage Redesign Test',
+    experimentId: '0',
+  };
+};
+
+
+export const downloadSampleFiles = async () => {
+  const files = [
+    'metrics_config.json',
+    'exposures.csv',
+    'events.csv',
+    'users.csv'
+  ];
+
+  for (const filename of files) {
+    const response = await fetch(`/sample_data/${filename}`);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    // small delay between downloads to avoid browser blocking
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 };
 
 export default api;
