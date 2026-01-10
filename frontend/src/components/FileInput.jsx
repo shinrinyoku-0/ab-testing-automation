@@ -24,20 +24,25 @@ const FileInput = ({
     <>
       <Card className="border-2 border-dashed border-default-300 hover:border-primary-400 transition-colors bg-default-50/50 hover:bg-primary-50/30">
         <CardBody className='p-6'>
-          <div className="flex items-start gap-3 mb-3">
+          <div className={`flex gap-3 mb-3 ${helperText ? 'items-start' : 'items-center'}`}>
             <div className="shrink-0 w-10 h-10 bg-default-100 rounded-lg flex items-center justify-center">
               <Icon className="w-5 h-5 text-default-600" />
             </div>
-          <div className="flex-1">
-            <h4 className="font-semibold text-default-700 mb-1">
-              {label}
-              {required && <span className="text-danger ml-1">*</span>}
-            </h4>
-            {helperText && (
-              <p className="text-xs text-default-500">{helperText}</p>
+            {helperText ? (
+              <div className="flex-1">
+                <h4 className="font-semibold text-default-700 mb-1">
+                  {label}
+                  {required && <span className="text-danger ml-1">*</span>}
+                </h4>
+                <p className="text-xs text-default-500">{helperText}</p>
+              </div>
+            ) : (
+              <h4 className="font-semibold text-default-700">
+                {label}
+                {required && <span className="text-danger ml-1">*</span>}
+              </h4>
             )}
           </div>
-        </div>
               
           <input
             id={id}
