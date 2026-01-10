@@ -93,21 +93,27 @@ const fetchSampleFile = async (filename) => {
 };
 
 export const loadSampleData = async () => {
-  const [jsonFile, exposuresFile, eventsFile, usersFile] = await Promise.all([
-    fetchSampleFile('metrics_config.json'),
-    fetchSampleFile('exposures.csv'),
-    fetchSampleFile('events.csv'),
-    fetchSampleFile('users.csv'),
-  ]);
 
-  return {
-    jsonFile,
-    exposuresFile,
-    eventsFile,
-    usersFile,
-    experimentName: 'Homepage Redesign Test',
-    experimentId: '0',
-  };
+  try  {    
+    const [jsonFile, exposuresFile, eventsFile, usersFile] = await Promise.all([
+      fetchSampleFile('metric_definition.json'),
+      fetchSampleFile('exposure_events.csv'),
+      fetchSampleFile('user_events_conversion.csv'),
+      fetchSampleFile('user_info.csv'),
+    ]);
+
+    return {
+      jsonFile,
+      exposuresFile,
+      eventsFile,
+      usersFile,
+      experimentName: 'Homepage Redesign Test',
+      experimentId: '0',
+    };
+  } catch (e) {
+    console.error('Error loading sample data:', e);
+    throw e;
+  }
 };
 
 

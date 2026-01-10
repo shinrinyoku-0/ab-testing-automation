@@ -50,7 +50,7 @@ const FileInput = ({
             accept={accept}
             onChange={onChange}
             className="hidden"
-            required={required}
+            required={required && !file}
           />
           
           <label
