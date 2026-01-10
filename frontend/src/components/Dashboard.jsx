@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Tabs, Tab } from '@heroui/react';
 import FileUpload from './FileUpload';
 import SampleSizeCalculator from './SampleSizeCalculator';
+import InfoBox from './InfoBox';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('upload');
@@ -12,6 +13,30 @@ export const Dashboard = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
+
+  const infoContent = {
+    upload: {
+      variant: 'primary',
+      title: 'This tool is designed for event-based A/B test data (web/mobile analytics).',
+      items: [
+        'Exposures: user_id, experiment_id, variant, exposure_time',
+        'Events: user_id, event_name, event_time, event_value (optional)',
+        'Users: user_id + any demographic columns (optional)'
+      ]
+    },
+    'sample-size': {
+      variant: 'secondary',
+      title: 'Understanding Sample Size Calculations',
+      items: [
+        'Current Conversion Rate: Your baseline conversion rate (e.g., 10% = 10)',
+        'Minimum Detectable Effect: The smallest change you want to detect (e.g., 5% means detecting 10% → 10.5%)',
+        'Significance Level (α): Probability of false positive (typically 5%)',
+        'Statistical Power: Probability of detecting a real effect (typically 80%)'
+      ]
+    }
+  };
+
+  const currentInfo = infoContent[activeTab];
 
   return (
   <div className="min-h-screen bg-gray-50">
@@ -38,22 +63,8 @@ export const Dashboard = () => {
       </div>
     </div>
 
-    {/* Info Box */}
-    <div className="flex justify-center">
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-        <p className="text-xl">
-          <strong>This tool is designed for event-based A/B test data (web/mobile analytics).</strong>
-        </p>
-        <ul className="text-medium mt-2 ml-4 list-disc">
-          <li>Exposures: user_id, experiment_id, variant, exposure_time</li>
-          <li>Events: user_id, event_name, event_time, event_value (optional)</li>
-          <li>Users: user_id + any demographic columns (optional)</li>
-        </ul>
-      </div>
-    </div>
-
-    {/* Tab Navigation */}
-    <div className="max-w-7xl mx-auto px-4 m-4 flex justify-center">
+        {/* Tab Navigation */}
+    <div className="max-w-7xl mx-auto px-4 flex justify-center">
       <Tabs 
         selectedKey={activeTab} 
         onSelectionChange={setActiveTab}
@@ -69,12 +80,17 @@ export const Dashboard = () => {
       </Tabs>
     </div>
 
+    <InfoBox 
+        variant={currentInfo.variant}
+        title={currentInfo.title}
+        items={currentInfo.items}
+    />
+
     {/* Content Area */}
-    <main className="max-w-7xl mx-auto px-4 py-4">
+    <main className="max-w-7xl pt-0 mt-0 mx-auto px-4 py-4">
       {activeTab === 'upload' && <FileUpload />}
       {activeTab === 'sample-size' && <SampleSizeCalculator />}
     </main>
-
   </div>
   );
 };
