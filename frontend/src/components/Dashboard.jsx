@@ -15,52 +15,67 @@ export const Dashboard = () => {
 
   return (
   <div className="min-h-screen bg-gray-50">
+    
     {/* Header */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">
-              A/B Testing Platform
-            </h1>
-            <p className="text-medium text-gray-600 mt-2">
-              Analyze experiments, calculate sample sizes, and make data-driven decisions
-            </p>
-          </div>
-          <Button
-            onPress={handleLogout}
-            color="primary"
-            variant="solid"
-            className="w-full sm:w-auto"
-          >
-            Logout
-          </Button>
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">
+            A/B Testing Platform
+          </h1>
+          <p className="text-medium text-gray-600 mt-2">
+            Analyze experiments, calculate sample sizes, and make data-driven decisions
+          </p>
         </div>
-      </div>
-
-
-      {/* Tab Navigation */}
-      <div className="max-w-7xl mx-auto px-4 mb-4">
-        <Tabs 
-          selectedKey={activeTab} 
-          onSelectionChange={setActiveTab}
-          variant="solid"
+        <Button
+          onPress={handleLogout}
           color="primary"
-          classNames={{
-            tabList: "w-full",
-            tab: "w-full"
-          }}
+          variant="solid"
+          className="w-full sm:w-auto"
         >
-          <Tab key="upload" title="Upload & Analyze" />
-          <Tab key="sample-size" title="Sample Size Calculator" />
-        </Tabs>
+          Logout
+        </Button>
       </div>
-
-      {/* Content Area */}
-      <main className="max-w-7xl mx-auto px-4 py-4">
-        {activeTab === 'upload' && <FileUpload />}
-        {activeTab === 'sample-size' && <SampleSizeCalculator />}
-      </main>
     </div>
+
+    {/* Info Box */}
+    <div className="flex justify-center">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+        <p className="text-xl">
+          <strong>This tool is designed for event-based A/B test data (web/mobile analytics).</strong>
+        </p>
+        <ul className="text-medium mt-2 ml-4 list-disc">
+          <li>Exposures: user_id, experiment_id, variant, exposure_time</li>
+          <li>Events: user_id, event_name, event_time, event_value (optional)</li>
+          <li>Users: user_id + any demographic columns (optional)</li>
+        </ul>
+      </div>
+    </div>
+
+    {/* Tab Navigation */}
+    <div className="max-w-7xl mx-auto px-4 m-4 flex justify-center">
+      <Tabs 
+        selectedKey={activeTab} 
+        onSelectionChange={setActiveTab}
+        variant="solid"
+        color="primary"
+        classNames={{
+          tabList: "w-full",
+          tab: "w-full"
+        }}
+      >
+        <Tab key="upload" title="Upload & Analyze" />
+        <Tab key="sample-size" title="Sample Size Calculator" />
+      </Tabs>
+    </div>
+
+    {/* Content Area */}
+    <main className="max-w-7xl mx-auto px-4 py-4">
+      {activeTab === 'upload' && <FileUpload />}
+      {activeTab === 'sample-size' && <SampleSizeCalculator />}
+    </main>
+
+  </div>
   );
 };
 
