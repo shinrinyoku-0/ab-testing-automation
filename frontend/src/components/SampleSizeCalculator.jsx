@@ -39,24 +39,24 @@ const SampleSizeCalculator = () => {
   };
 
   return (
-    <div className="flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
-        <CardBody className="p-6 space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold">Sample Size Calculator</h2>
-            <p className="text-medium text-gray-600 mt-2">
-              Calculate how many users you need per variant to detect a meaningful change
-            </p>
-          </div>
+    <Card className="w-full max-w-4xl mx-auto">
+      <CardBody className="p-6 space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold">Sample Size Calculator</h2>
+          <p className="text-medium text-gray-700 mt-2">
+            Calculate how many users you need per variant to detect a meaningful change
+          </p>
+        </div>
 
-          {/* Info Alert */}
-          <Alert variant="faded" color="primary" title="Enter your current conversion rate and the minimum improvement you want to detect. This calculator uses a two-tailed test." className="mb-4" />
+        {/* Info Alert */}
+        <Alert variant="faded" color="secondary" title="This calculator uses a two-tailed test - it detects changes in either direction (increases or decreases)." className="mb-4" />
 
-          {/* Error Alert */}
-          {error && <Alert variant="faded" color="danger" title={error} className="mb-4" />}
+        {/* Error Alert */}
+        {error && <Alert variant="faded" color="danger" title={error} className="mb-4" />}
 
-          <div className="space-y-6">
-            {/* Baseline Rate */}
+        <div className="space-y-6">
+          {/* Baseline Rate and MDE - Side by Side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-0">
             <Input
               label="Current Conversion Rate (%)"
               type="number"
@@ -68,9 +68,12 @@ const SampleSizeCalculator = () => {
               placeholder="e.g., 10 for 10%"
               description="Your current conversion rate (e.g., 10% = 10)"
               variant="bordered"
+              classNames={{
+                label: "text-base text-medium font-semibold",
+                description: "text-sm text-zinc-500"
+              }}
             />
 
-            {/* MDE */}
             <Input
               label="Minimum Detectable Effect (%)"
               type="number"
@@ -82,16 +85,22 @@ const SampleSizeCalculator = () => {
               placeholder="e.g., 5 for 5% relative change"
               description="Relative change you want to detect (e.g., 5% means detecting 10% → 10.5%)"
               variant="bordered"
+              classNames={{
+                label: "text-base text-medium font-semibold",
+                description: "text-sm text-zinc-500"
+              }}
             />
+          </div>
 
-            {/* Advanced Options Toggle */}
-            <details className="group">
-              <summary className="text-sm font-semibold cursor-pointer py-2 hover:text-primary transition-colors">
-                Advanced Options
-              </summary>
+          {/* Advanced Options Toggle */}
+          <details className="group">
+            <summary className="text-medium font-semibold cursor-pointer py-2 hover:text-secondary transition-colors">
+              Advanced Options
+            </summary>
 
-              <div className="space-y-4 mt-4 pt-4 border-t">
-                {/* Alpha */}
+            <div className="space-y-4 pt-4">
+              {/* Alpha and Power - Side by Side */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="Significance Level (α) %"
                   type="number"
@@ -102,9 +111,12 @@ const SampleSizeCalculator = () => {
                   onChange={(e) => setAlpha(e.target.value)}
                   description="Probability of false positive (standard: 5%)"
                   variant="bordered"
+                  classNames={{
+                    label: "text-base text-medium font-semibold",
+                    description: "text-sm text-zinc-500"
+                  }}
                 />
 
-                {/* Power */}
                 <Input
                   label="Statistical Power (%)"
                   type="number"
@@ -115,68 +127,72 @@ const SampleSizeCalculator = () => {
                   onChange={(e) => setPower(e.target.value)}
                   description="Probability of detecting real effect (standard: 80%)"
                   variant="bordered"
+                  classNames={{
+                    label: "text-base text-medium font-semibold",
+                    description: "text-sm text-zinc-500"
+                  }}
                 />
               </div>
-            </details>
+            </div>
+          </details>
 
-            {/* Submit Button */}
-            <Button
-              color="primary"
-              variant="solid"
-              size="lg"
-              onPress={handleCalculate}
-              isDisabled={loading}
-              className="w-full"
-            >
-              {loading ? 'Calculating...' : 'Calculate Sample Size'}
-            </Button>
-          </div>
+          {/* Submit Button */}
+          <Button
+            color="secondary"
+            variant="flat"
+            size="lg"
+            onPress={handleCalculate}
+            isDisabled={loading}
+            className="w-full font-semibold"
+          >
+            {loading ? 'Calculating...' : 'Calculate Sample Size'}
+          </Button>
+        </div>
 
-          {/* Results */}
-          {result && (
-            <Card className="bg-green-50 mt-6">
-              <CardBody className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-green-900">Results</h3>
-                  <Chip color="success" variant="flat">
-                    Complete
-                  </Chip>
+        {/* Results */}
+        {result && (
+          <Card className="bg-green-50 mt-6">
+            <CardBody className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-green-900">Results</h3>
+                <Chip color="success" variant="flat">
+                  Complete
+                </Chip>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-green-800">
+                    Sample size per variant:
+                  </p>
+                  <p className="text-2xl font-bold text-green-900">
+                    {result.sample_size_per_variant.toLocaleString()}
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-green-800">
-                      Sample size per variant:
-                    </p>
-                    <p className="text-2xl font-bold text-green-900">
-                      {result.sample_size_per_variant.toLocaleString()}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium text-green-800">
-                      Total sample size needed:
-                    </p>
-                    <p className="text-2xl font-bold text-green-900">
-                      {result.total_sample_size.toLocaleString()}
-                    </p>
-                  </div>
+                <div>
+                  <p className="text-sm font-medium text-green-800">
+                    Total sample size needed:
+                  </p>
+                  <p className="text-2xl font-bold text-green-900">
+                    {result.total_sample_size.toLocaleString()}
+                  </p>
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <Alert variant="faded" color="primary" title={result.interpretation} />
-                  <Alert 
-                    variant="faded"
-                    color="success" 
-                    title={`Next step: Collect at least ${result.sample_size_per_variant.toLocaleString()} users in each variant before analyzing results.`} 
-                  />
-                </div>
-              </CardBody>
-            </Card>
-          )}
-        </CardBody>
-      </Card>
-    </div>
+              <div className="space-y-2">
+                <Alert variant="faded" color="primary" title={result.interpretation} />
+                <Alert 
+                  variant="faded"
+                  color="success" 
+                  title={`Next step: Collect at least ${result.sample_size_per_variant.toLocaleString()} users in each variant before analyzing results.`} 
+                />
+              </div>
+            </CardBody>
+          </Card>
+        )}
+      </CardBody>
+    </Card>
   );
 };
 
