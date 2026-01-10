@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Tabs, Tab } from '@heroui/react';
 import FileUpload from './FileUpload';
 import SampleSizeCalculator from './SampleSizeCalculator';
-import InfoBox from './InfoBox';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('upload');
@@ -12,28 +11,6 @@ export const Dashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
-  };
-
-  const infoContent = {
-    upload: {
-      variant: 'primary',
-      title: 'This tool is designed for event-based A/B test data (web/mobile analytics).',
-      items: [
-        'Exposures: user_id, experiment_id, variant, exposure_time',
-        'Events: user_id, event_name, event_time, event_value (optional)',
-        'Users: user_id + any demographic columns (optional)'
-      ]
-    },
-    'sample-size': {
-      variant: 'secondary',
-      title: 'Understanding Sample Size Calculations',
-      items: [
-        'Current Conversion Rate: Your baseline conversion rate (e.g., 10% = 10)',
-        'Minimum Detectable Effect: The smallest change you want to detect (e.g., 5% means detecting 10% → 10.5%)',
-        'Significance Level (α): Probability of false positive (typically 5%)',
-        'Statistical Power: Probability of detecting a real effect (typically 80%)'
-      ]
-    }
   };
 
   const currentInfo = infoContent[activeTab];
@@ -64,28 +41,28 @@ export const Dashboard = () => {
     </div>
 
         {/* Tab Navigation */}
-    <div className="max-w-7xl mx-auto px-4 flex justify-center">
-      <Tabs 
+    <div className="max-w-7xl mx-auto px-4 flex justify-center mb-4">
+      <Tabs
+        radius="lg" 
         selectedKey={activeTab} 
         onSelectionChange={setActiveTab}
-        variant="solid"
-        color="primary"
+        variant="bordered"
         classNames={{
           tabList: "w-full",
-          tab: "w-full"
+          tab: "w-full text-medium h-10"
         }}
+        color={activeTab === "upload" ? "primary" : "secondary"}
       >
-        <Tab key="upload" title="Upload & Analyze" />
-        <Tab key="sample-size" title="Sample Size Calculator" />
+        <Tab 
+          key="upload" 
+          title="Upload & Analyze"
+        />
+        <Tab 
+          key="sample-size" 
+          title="Sample Size Calculator"
+        />
       </Tabs>
     </div>
-
-    <InfoBox 
-        variant={currentInfo.variant}
-        title={currentInfo.title}
-        items={currentInfo.items}
-    />
-
     {/* Content Area */}
     <main className="max-w-7xl pt-0 mt-0 mx-auto px-4 py-4">
       {activeTab === 'upload' && <FileUpload />}
