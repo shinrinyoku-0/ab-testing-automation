@@ -87,7 +87,7 @@ const FilePreviewModal = ({ file, fileType, onClose }) => {
           )}
 
           {!loading && !error && content && fileType === 'json' && (
-            <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-xs font-mono">
+            <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-medium font-mono">
               {JSON.stringify(content, null, 2)}
             </pre>
           )}
@@ -100,14 +100,14 @@ const FilePreviewModal = ({ file, fileType, onClose }) => {
               <Table aria-label="CSV data preview">
                 <TableHeader>
                   {content.headers.map((header, idx) => (
-                    <TableColumn key={idx}>{header}</TableColumn>
+                    <TableColumn className="text-medium" key={idx}>{header}</TableColumn>
                   ))}
                 </TableHeader>
                 <TableBody>
                   {content.rows.map((row, rowIdx) => (
                     <TableRow key={rowIdx}>
                       {content.headers.map((header, colIdx) => (
-                        <TableCell key={colIdx}>
+                        <TableCell className="text-medium" key={colIdx}>
                           {row[header] !== null && row[header] !== undefined
                             ? String(row[header])
                             : ''}
