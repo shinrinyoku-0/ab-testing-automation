@@ -1,6 +1,5 @@
 import { useFileUpload } from '../hooks/useFileUpload';
-import { useState } from 'react';
-import { Alert, Card, CardBody, Button, Select, SelectItem, Input, Form } from '@heroui/react';
+import { Alert, Card, CardBody, Button, Divider, Select, SelectItem, Input, Form } from '@heroui/react';
 import FileInput from './FileInput';
 import MetricResult from './MetricResult';
 import { SparklesIcon, ArrowDownTrayIcon, DocumentTextIcon, TableCellsIcon, UserGroupIcon } from '@heroicons/react/24/outline';
@@ -33,43 +32,65 @@ const FileUpload = () => {
   } = useFileUpload();
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-4">
-      {/* Sample Data Card */}
-      <Card className="mb-6">
-        <CardBody className="p-6">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="flex-1">
-              <h3 className="text-2xl font-semibold mb-1">
-                New to AB testing analysis?
-              </h3>
-              <p className="text-medium text-gray-600">
-                See how it works with a demo dataset showing homepage redesign test results.
-              </p>
+    <>
+      <div className="flex flex-col lg:flex-row gap-6 mb-6">
+        {/* Sample Data Card */}
+        <Card className="lg:w-[45%] h-fit">
+          <CardBody className="p-8">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="flex-1">
+                <h3 className="text-2xl font-semibold mb-1">
+                  New to AB testing analysis?
+                </h3>
+                <p className="text-medium text-gray-700">
+                  See how it works with a demo dataset showing homepage redesign test results.
+                </p>
+              </div>
             </div>
+        
+            <div className="flex flex-wrap gap-4 mt-2">
+              <Button
+                color="primary"
+                variant="solid"
+                onPress={handleLoadSampleData}
+                isDisabled={loading}
+                startContent={<SparklesIcon className="w-4 h-4" />}
+                className="text-medium h-12"
+              >
+                Try with Sample Data
+              </Button>
+        
+              <Button
+                color="default"
+                variant="bordered"
+                onPress={handleDownloadSamples}
+                startContent={<ArrowDownTrayIcon className="w-4 h-4" />}
+                className="text-medium h-12"
+              >
+                Download Samples
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
+        <div className='lg:w-[55%]'>
+          <div className="bg-primary-50 border border-primary-200 rounded-lg px-8 py-8 pt-4 pb-4 w-full">
+            <p className="text-xl text-primary font-semibold mb-2">This tool is designed for event-based A/B test data (web/mobile analytics).</p>
+            <Divider className='border-primary mx-2 my-2'></Divider>
+            <p className="text-lg font-semibold text-primary">Expected format:</p>
+            <ul className={"text-medium ml-4 list-disc text-primary"}>
+              <li key={0} className="mb-1">
+                Exposures: user_id, experiment_id, variant, exposure_time
+              </li>
+              <li key={1} className="mb-1">
+                Events: user_id, event_name, event_time, event_value (optional)
+              </li>
+              <li key={2} className="mb-1">
+                Users: user_id + any demographic columns (optional)
+              </li>
+            </ul>
           </div>
-          
-          <div className="flex flex-wrap gap-4 m-4">
-            <Button
-              color="primary"
-              variant="solid"
-              onPress={handleLoadSampleData}
-              isDisabled={loading}
-              startContent={<SparklesIcon className="w-4 h-4" />}
-            >
-              Try with Sample Data
-            </Button>
-            
-            <Button
-              color="default"
-              variant="bordered"
-              onPress={handleDownloadSamples}
-              startContent={<ArrowDownTrayIcon className="w-4 h-4" />}
-            >
-              Download Samples
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
 
       <Card className="shadow-lg">
         <CardBody className="p-8">
@@ -87,7 +108,7 @@ const FileUpload = () => {
                   </div>
                   <h3 className="text-xl font-semibold">Experiment Details</h3>
                 </div>
-                {/* Data Source Type - Full Width */}
+
                 <Select
                   label="Data Source Type"
                   placeholder="Select data source"
@@ -151,14 +172,14 @@ const FileUpload = () => {
                   </div>
                   <h3 className="text-xl font-semibold">Upload Files</h3>
                 </div>
-                {/* 2x2 Grid for File Uploads */}
+
                 <div className='w-full'>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FileInput
                       id="jsonFile"
                       label="Metrics Config (JSON)"
                       accept=".json"
-                      required
+                      required={!isUsingSampleData}
                       file={jsonFile}
                       onChange={handleJsonFileChange}
                       icon={DocumentTextIcon}
@@ -167,7 +188,7 @@ const FileUpload = () => {
                       id="exposuresFile"
                       label="Exposures CSV"
                       accept=".csv"
-                      required
+                      required={!isUsingSampleData}
                       file={exposuresFile}
                       onChange={handleExposuresFileChange}
                       icon={TableCellsIcon}
@@ -176,7 +197,7 @@ const FileUpload = () => {
                       id="eventsFile"
                       label="Events CSV"
                       accept=".csv"
-                      required
+                      required={!isUsingSampleData}
                       file={eventsFile}
                       onChange={handleEventsFileChange}
                       icon={TableCellsIcon}
@@ -219,7 +240,7 @@ const FileUpload = () => {
           </div>
         </CardBody>
       </Card>
-    </div>
+    </>
   );
 };
 
