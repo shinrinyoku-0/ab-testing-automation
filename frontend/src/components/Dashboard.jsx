@@ -13,8 +13,6 @@ export const Dashboard = () => {
     navigate('/login');
   };
 
-  const currentInfo = infoContent[activeTab];
-
   return (
   <div className="min-h-screen bg-gray-50">
     
