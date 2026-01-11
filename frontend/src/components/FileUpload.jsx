@@ -16,6 +16,10 @@ const FileUpload = () => {
     setExperimentName,
     experimentId,
     setExperimentId,
+    availableExperimentIds,
+    submittedExperimentName,
+    submittedExperimentId,
+    metricDefinitions,
     options,
     error,
     success,
@@ -54,10 +58,10 @@ const FileUpload = () => {
                 variant="solid"
                 onPress={handleLoadSampleData}
                 isDisabled={loading}
-                startContent={<SparklesIcon className="w-4 h-4" />}
+                startContent={!isUsingSampleData ? <SparklesIcon className="w-4 h-4" /> : undefined}
                 className="text-medium h-12"
               >
-                Try with Sample Data
+                {isUsingSampleData ? 'Use your own data' : 'Try with Sample Data'}
               </Button>
         
               <Button
@@ -74,10 +78,10 @@ const FileUpload = () => {
         </Card>
         <div className='lg:w-[55%]'>
           <div className="bg-primary-50 border border-primary-200 rounded-lg px-8 py-8 pt-4 pb-4 w-full">
-            <p className="text-xl text-primary font-semibold mb-2">This tool is designed for event-based A/B test data (web/mobile analytics).</p>
+            <p className="text-xl text-primary-700 font-semibold mb-2">This tool is designed for event-based A/B test data (web/mobile analytics).</p>
             <Divider className='border-primary mx-2 my-2'></Divider>
-            <p className="text-lg font-semibold text-primary">Expected format:</p>
-            <ul className={"text-medium ml-4 list-disc text-primary"}>
+            <p className="text-lg font-semibold text-primary-700">Expected format:</p>
+            <ul className={"text-medium ml-4 list-disc text-primary-700"}>
               <li key={0} className="mb-1">
                 Exposures: user_id, experiment_id, variant, exposure_time
               </li>
@@ -95,9 +99,8 @@ const FileUpload = () => {
       <Card className="shadow-lg">
         <CardBody className="p-8">
           <div className="mt-0 mx-4 my-4">
-            {/* Alerts */}
+            {/* Error Alert - show at top */}
             {error && <Alert variant="faded" color="danger" title={error} className="mb-4 mt-0" />}
-            {success && <Alert variant="faded" color="success" title={success} className="mb-4 mt-0" />}
             {/* Form */}
             <Form validationBehavior="native" onSubmit={handleSubmit} className="space-y-8">
               {/* Experiment Details Group */}
@@ -146,22 +149,27 @@ const FileUpload = () => {
                     }}
                     className='md:col-span-2'
                   />
-                  <Input
-                    type="text"
+                  <Select
                     label="Experiment ID"
-                    placeholder="e.g., 0 or exp_123"
-                    value={experimentId}
+                    placeholder={availableExperimentIds.length > 0 ? "Select experiment ID" : "Upload exposures file first"}
+                    selectedKeys={experimentId ? [experimentId] : []}
                     onChange={(e) => setExperimentId(e.target.value)}
-                    description="This should match the experiment_id in your exposures CSV"
+                    description="Extracted from exposures CSV"
                     isRequired
                     variant="bordered"
                     size="lg"
                     classNames={{
-                      input: "text-base",
-                      inputWrapper: "h-16"
+                      trigger: "h-16"
                     }}
                     className='md:col-span-1'
-                  />
+                    isDisabled={availableExperimentIds.length === 0}
+                  >
+                    {availableExperimentIds.map((id) => (
+                      <SelectItem key={id} value={id}>
+                        {id}
+                      </SelectItem>
+                    ))}
+                  </Select>
                 </div>
               </div>
               {/* File Upload Group */}
@@ -226,13 +234,23 @@ const FileUpload = () => {
                 {loading ? 'Processing...' : 'Upload & Run Analysis'}
               </Button>
             </Form>
+            
+            {/* Success Alert - show below button */}
+            {success && <Alert variant="faded" color="success" title={success} className="mt-4" />}
             {/* Display Results */}
             {analysisResults && (
               <div className="mt-8 pt-8 border-t border-divider">
-                <h3 className="text-xl font-semibold mb-6">Analysis Results</h3>
-                <div className="space-y-6">
+                <h3 className="text-2xl font-bold mb-2">
+                  Analysis Results for {submittedExperimentName} - Experiment ID: {submittedExperimentId}
+                </h3>
+                <div className="space-y-6 mt-6">
                   {Object.entries(analysisResults).map(([metricId, data]) => (
-                    <MetricResult key={metricId} metricId={metricId} data={data} />
+                    <MetricResult 
+                      key={metricId} 
+                      metricId={metricId} 
+                      data={data}
+                      metricDefinitions={metricDefinitions}
+                    />
                   ))}
                 </div>
               </div>
