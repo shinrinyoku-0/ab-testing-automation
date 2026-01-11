@@ -1,38 +1,51 @@
 from scipy import stats
 from typing import cast
+import numpy as np
+
+def calculate_cohens_h(p1, p2):
+    """Cohen's h for proportions (chi-square test)"""
+    return 2 * (np.arcsin(np.sqrt(p2)) - np.arcsin(np.sqrt(p1)))
+
+def calculate_cohens_d(mean1, mean2, std1, std2, n1, n2):
+    """Cohen's d for means (t-test)"""
+    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
+    if pooled_std == 0:
+        return 0
+    return (mean2 - mean1) / pooled_std
 
 def run_stat_tests(metric_df, metric_config):
     """
     Given metric values, run appropriate statistical test
     """
-
     variant_a = metric_df[metric_df['variant'] == 'A']['metric_value']
     variant_b = metric_df[metric_df['variant'] == 'B']['metric_value']
-
+    
     agg_type = metric_config['aggregation']
-
+    
     if agg_type == 'binary':
         # chi-square test for conversion rate
         conversions_a = variant_a.sum()
         conversions_b = variant_b.sum()
         n_a = len(variant_a)
         n_b = len(variant_b)
-
+        
         rate_a = conversions_a / n_a
         rate_b = conversions_b / n_b
-
+        
         # confidence intervals
         ci_a = stats.binom.interval(0.95, n_a, rate_a)
         ci_b = stats.binom.interval(0.95, n_b, rate_b)
-
+        
         contingency = [
             [conversions_a, n_a - conversions_a],
             [conversions_b, n_b - conversions_b]
         ]
+        
         result = stats.chi2_contingency(contingency)
         chi2 = result[0]
         p_value = result[1]
         p_value = cast(float, p_value)
+        
         return {
             'test': 'chi-square',
             'statistic': chi2,
@@ -44,18 +57,20 @@ def run_stat_tests(metric_df, metric_config):
             'lift': (rate_b / rate_a) - 1,
             'significance': 'YES' if p_value < 0.05 else 'NO'
         }
-    else: # sum or count
+    
+    else:  # sum or count
         # two-sample t-test
         t_stat, p_value = stats.ttest_ind(variant_a, variant_b)
-
+        
         # Confidence intervals
         mean_a = variant_a.mean()
         mean_b = variant_b.mean()
         se_a = stats.sem(variant_a)
         se_b = stats.sem(variant_b)
+        
         ci_a = stats.t.interval(0.95, len(variant_a)-1, mean_a, se_a)
         ci_b = stats.t.interval(0.95, len(variant_b)-1, mean_b, se_b)
-
+        
         return {
             'test': 't-test',
             'statistic': t_stat,
