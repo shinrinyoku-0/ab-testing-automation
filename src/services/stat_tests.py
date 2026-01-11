@@ -54,7 +54,7 @@ def run_stat_tests(metric_df, metric_config):
         se_a = stats.sem(variant_a)
         se_b = stats.sem(variant_b)
         ci_a = stats.t.interval(0.95, len(variant_a)-1, mean_a, se_a)
-        ci_b = stats.t.interval(0.95, len(variant_a)-1, mean_b, se_b)
+        ci_b = stats.t.interval(0.95, len(variant_b)-1, mean_b, se_b)
 
         return {
             'test': 't-test',
