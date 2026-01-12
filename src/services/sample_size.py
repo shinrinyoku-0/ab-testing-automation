@@ -19,6 +19,14 @@ def calculate_sample_size(baseline_rate, mde, alpha=0.05, power=0.80):
     p1 = baseline_rate
     p2 = baseline_rate * (1 + mde)
     
+    # Validate that the expected treatment rate doesn't exceed 100%
+    if p2 > 1.0:
+        raise ValueError(
+            f"With a baseline rate of {baseline_rate*100:.1f}% and MDE of {mde*100:.1f}%, "
+            f"the expected change would be {p2*100:.1f}%. "
+            f"Please reduce either the baseline rate or the MDE."
+        )
+    
     # Pooled proportion for variance calculation
     p_pooled = (p1 + p2) / 2
 
