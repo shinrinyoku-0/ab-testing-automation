@@ -16,6 +16,10 @@ export const useFileUpload = () => {
   const [loading, setLoading] = useState(false);
   const [analysisResults, setAnalysisResults] = useState(null);
   const [isUsingSampleData, setIsUsingSampleData] = useState(false);
+  const [availableExperimentIds, setAvailableExperimentIds] = useState([]);
+  const [submittedExperimentName, setSubmittedExperimentName] = useState('');
+  const [submittedExperimentId, setSubmittedExperimentId] = useState('');
+  const [metricDefinitions, setMetricDefinitions] = useState(null);
   const navigate = useNavigate();
 
   // fetch upload options on mount
@@ -49,22 +53,94 @@ export const useFileUpload = () => {
     }
   };
 
+  // Parse CSV to extract experiment IDs
+  const parseExperimentIds = async (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const text = e.target.result;
+          const lines = text.split('\n');
+          
+          if (lines.length < 2) {
+            resolve([]);
+            return;
+          }
+
+          // Find the experiment_id column index
+          const headers = lines[0].split(',').map(h => h.trim());
+          const expIdIndex = headers.findIndex(h => h.toLowerCase() === 'experiment_id');
+          
+          if (expIdIndex === -1) {
+            resolve([]);
+            return;
+          }
+
+          // Extract unique experiment IDs
+          const experimentIds = new Set();
+          for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            const values = line.split(',');
+            if (values[expIdIndex]) {
+              experimentIds.add(values[expIdIndex].trim());
+            }
+          }
+
+          resolve(Array.from(experimentIds).sort());
+        } catch (error) {
+          console.error('Error parsing CSV:', error);
+          resolve([]);
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    });
+  };
+
   // file change handlers
-  const handleJsonFileChange = (e) => {
+  const handleJsonFileChange = async (e) => {
     const file = e.target.files[0];
     if (validateFile(file, '.json', 'Please select a valid JSON file')) {
       setJsonFile(file);
+      
+      // Parse JSON to get metric definitions
+      try {
+        const text = await file.text();
+        const definitions = JSON.parse(text);
+        setMetricDefinitions(definitions);
+      } catch (err) {
+        console.error('Error parsing metric definitions:', err);
+        setMetricDefinitions(null);
+      }
     } else {
       setJsonFile(null);
+      setMetricDefinitions(null);
     }
   };
 
-  const handleExposuresFileChange = (e) => {
-    const file = e.target. files[0];
+  const handleExposuresFileChange = async (e) => {
+    const file = e.target.files[0];
     if (validateFile(file, '.csv', 'Exposures file must be CSV')) {
       setExposuresFile(file);
+      
+      // Parse the file to extract experiment IDs
+      try {
+        const experimentIds = await parseExperimentIds(file);
+        setAvailableExperimentIds(experimentIds);
+        
+        // Auto-select the first experiment ID if available and no ID is set
+        if (experimentIds.length > 0 && !experimentId) {
+          setExperimentId(experimentIds[0]);
+        }
+      } catch (err) {
+        console.error('Error extracting experiment IDs:', err);
+        setAvailableExperimentIds([]);
+      }
     } else {
       setExposuresFile(null);
+      setAvailableExperimentIds([]);
     }
   };
 
@@ -87,6 +163,13 @@ export const useFileUpload = () => {
   };
 
   const handleLoadSampleData = async () => {
+    // If already using sample data, clear the form instead
+    if (isUsingSampleData) {
+      resetForm();
+      setSuccess('');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -99,6 +182,25 @@ export const useFileUpload = () => {
       setUsersFile(sampleData.usersFile);
       setExperimentName(sampleData.experimentName);
       setExperimentId(sampleData.experimentId);
+
+      // Parse exposures file to get available experiment IDs
+      try {
+        const experimentIds = await parseExperimentIds(sampleData.exposuresFile);
+        setAvailableExperimentIds(experimentIds);
+      } catch (err) {
+        console.error('Error extracting experiment IDs from sample data:', err);
+        setAvailableExperimentIds([sampleData.experimentId]); // Fallback to hardcoded ID
+      }
+      
+      // Parse JSON file for metric definitions
+      try {
+        const text = await sampleData.jsonFile.text();
+        const definitions = JSON.parse(text);
+        setMetricDefinitions(definitions);
+      } catch (err) {
+        console.error('Error parsing sample metric definitions:', err);
+        setMetricDefinitions(null);
+      }
 
       setIsUsingSampleData(true);
       setSuccess('Using sample data. Click "Upload & Run Analysis" to see results.');
@@ -127,7 +229,9 @@ export const useFileUpload = () => {
     setUsersFile(null);
     setExperimentName('');
     setExperimentId('');
+    setAvailableExperimentIds([]);
     setIsUsingSampleData(false);
+    setMetricDefinitions(null);
 
     // Reset file inputs
     ['jsonFile', 'exposuresFile', 'eventsFile', 'usersFile'].forEach(id => {
@@ -168,6 +272,13 @@ export const useFileUpload = () => {
     setLoading(true);
 
     try {
+      // Store the values before resetting
+      setSubmittedExperimentName(experimentName);
+      setSubmittedExperimentId(experimentId);
+      
+      // Save metric definitions before reset
+      const savedMetricDefinitions = metricDefinitions;
+      
       const response = await uploadFiles(
         experimentName, 
         experimentId,
@@ -186,6 +297,9 @@ export const useFileUpload = () => {
         setAnalysisResults(response.analysis);
       }
       resetForm();
+      
+      // Restore metric definitions after reset so they can be used for display names
+      setMetricDefinitions(savedMetricDefinitions);
     } catch (err) {
       if (err.response?.status === 401) {
         navigate('/login');
@@ -208,6 +322,10 @@ export const useFileUpload = () => {
     setExperimentName,
     experimentId,
     setExperimentId,
+    availableExperimentIds,
+    submittedExperimentName,
+    submittedExperimentId,
+    metricDefinitions,
     options,
     error,
     success,
