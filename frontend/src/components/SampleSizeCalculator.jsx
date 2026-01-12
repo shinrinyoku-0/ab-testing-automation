@@ -30,8 +30,12 @@ const SampleSizeCalculator = () => {
     } catch (err) {
       if (err.response?.status === 401) {
         navigate('/login');
+      } else if (err.response?.status === 422) {
+        return;
       } else {
-        setError(err.response?.data?.detail || 'Calculation failed');
+        // Handle other errors (400, 500, etc.)
+        const errorMessage = err.response?.data?.detail || 'Calculation failed';
+        setError(errorMessage);
       }
     } finally {
       setLoading(false);
@@ -49,10 +53,13 @@ const SampleSizeCalculator = () => {
         </div>
 
         {/* Info Alert */}
-        <Alert variant="faded" color="secondary" title="This calculator uses a two-tailed test - it detects changes in either direction (increases or decreases)." className="mb-4" />
+        <Alert variant="faded" color="secondary" 
+          title="This calculator uses a two-tailed test - it detects changes in either direction (increases or decreases)." 
+          className="mb-4" 
+          classNames={{title: "text-medium",}}/>
 
         {/* Error Alert */}
-        {error && <Alert variant="faded" color="danger" title={error} className="mb-4" />}
+        {error && <Alert variant="faded" color="danger" title={error} className="mb-4" classNames={{title: "text-medium",}}/>}
 
         <div className="space-y-6">
           {/* Baseline Rate and MDE - Side by Side */}
@@ -62,7 +69,7 @@ const SampleSizeCalculator = () => {
               type="number"
               step="0.1"
               min="0.1"
-              max="100"
+              max="99"
               value={baselineRate}
               onChange={(e) => setBaselineRate(e.target.value)}
               placeholder="e.g., 10 for 10%"
@@ -109,7 +116,7 @@ const SampleSizeCalculator = () => {
                   max="20"
                   value={alpha}
                   onChange={(e) => setAlpha(e.target.value)}
-                  description="Probability of false positive (standard: 5%)"
+                  description="Probability of false positive (standard: 5%, max: 20%)"
                   variant="bordered"
                   classNames={{
                     label: "text-base text-medium font-semibold",
@@ -153,40 +160,32 @@ const SampleSizeCalculator = () => {
         {result && (
           <Card className="bg-green-50 mt-6">
             <CardBody className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-green-900">Results</h3>
-                <Chip color="success" variant="flat">
-                  Complete
-                </Chip>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-green-800">
-                    Sample size per variant:
-                  </p>
-                  <p className="text-2xl font-bold text-green-900">
-                    {result.sample_size_per_variant.toLocaleString()}
-                  </p>
+              <div className="mt-4 mb-4 mx-8 my-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-2xl font-bold text-green-900">Results</h3>
+                  <Chip color="success" variant="flat">
+                    Complete
+                  </Chip>
                 </div>
-
-                <div>
-                  <p className="text-sm font-medium text-green-800">
-                    Total sample size needed:
-                  </p>
-                  <p className="text-2xl font-bold text-green-900">
-                    {result.total_sample_size.toLocaleString()}
-                  </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className="text-medium font-medium text-green-800">
+                      Sample size per variant:
+                    </p>
+                    <p className="text-2xl font-bold text-green-900">
+                      {result.sample_size_per_variant.toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-medium font-medium text-green-800">
+                      Total sample size needed:
+                    </p>
+                    <p className="text-2xl font-bold text-green-900">
+                      {result.total_sample_size.toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Alert variant="faded" color="primary" title={result.interpretation} />
-                <Alert 
-                  variant="faded"
-                  color="success" 
-                  title={`Next step: Collect at least ${result.sample_size_per_variant.toLocaleString()} users in each variant before analyzing results.`} 
-                />
+                <Alert variant="faded" color="primary" title={result.interpretation} className='mt-8' classNames={{title: "text-medium"}}/>
               </div>
             </CardBody>
           </Card>
