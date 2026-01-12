@@ -78,18 +78,18 @@ const FileUpload = () => {
         </Card>
         <div className='lg:w-[55%]'>
           <div className="bg-primary-50 border border-primary-200 rounded-lg px-8 py-8 pt-4 pb-4 w-full">
-            <p className="text-xl text-primary-700 font-semibold mb-2">This tool is designed for event-based A/B test data (web/mobile analytics).</p>
-            <Divider className='border-primary mx-2 my-2'></Divider>
-            <p className="text-lg font-semibold text-primary-700">Expected format:</p>
+            <p className="text-xl text-primary-700 font-semibold mb-2">This tool is designed for A/B test analysis from raw event logs.</p>
+            <Divider className='border-primary mt-4'></Divider>
+            <p className="text-lg font-semibold text-primary-700 mt-4">Expected format:</p>
             <ul className={"text-medium ml-4 list-disc text-primary-700"}>
-              <li key={0} className="mb-1">
+              <li key={0} className="mb-2">
                 Exposures: user_id, experiment_id, variant, exposure_time
               </li>
-              <li key={1} className="mb-1">
+              <li key={1} className="mb-2">
                 Events: user_id, event_name, event_time, event_value (optional)
               </li>
-              <li key={2} className="mb-1">
-                Users: user_id + any demographic columns (optional)
+              <li key={2} className="mb-2">
+                Users (optional): user_id + any demographic columns (optional)
               </li>
             </ul>
           </div>
@@ -112,7 +112,7 @@ const FileUpload = () => {
                   <h3 className="text-xl font-semibold">Experiment Details</h3>
                 </div>
 
-                <Select
+                {/* <Select
                   label="Data Source Type"
                   placeholder="Select data source"
                   selectedKeys={[selectedOption]}
@@ -129,7 +129,7 @@ const FileUpload = () => {
                       {option.label}
                     </SelectItem>
                   ))}
-                </Select>
+                </Select> */}
           
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Input
@@ -241,7 +241,7 @@ const FileUpload = () => {
             {analysisResults && (
               <div className="mt-8 pt-8 border-t border-divider">
                 <h3 className="text-2xl font-bold mb-2">
-                  Analysis Results for {submittedExperimentName} - Experiment ID: {submittedExperimentId}
+                  Analysis Results for <span className="text-primary">{submittedExperimentName}</span> - Experiment ID: <span className="text-primary">{submittedExperimentId}</span>
                 </h3>
                 <div className="space-y-6 mt-6">
                   {Object.entries(analysisResults).map(([metricId, data]) => (
