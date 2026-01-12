@@ -185,7 +185,6 @@ const MetricResult = ({ metricId, data, metricDefinitions }) => {
               distribution={data.distribution}
               liftTimeseries={data.lift_timeseries}
               ciTimeseries={data.ci_timeseries}
-              windowEndMarker={data.window_end_marker}
             />
           ) : (
             <Card className="h-full shadow-sm">
