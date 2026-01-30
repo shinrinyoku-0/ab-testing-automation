@@ -16,8 +16,11 @@ COPY . .
 COPY init_db.sh /init_db.sh
 RUN chmod +x /init_db.sh
 
+# Create uploads directory
+RUN mkdir -p /app/uploads
+
 EXPOSE 8000
 
 ENTRYPOINT ["/init_db.sh"]
-
+# Production mode
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

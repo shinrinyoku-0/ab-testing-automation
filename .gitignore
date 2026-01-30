@@ -217,3 +217,5 @@ node_modules/
 .env
 docker-compose.override.yml
 postgres_data/
+certbot/
+*.pyc

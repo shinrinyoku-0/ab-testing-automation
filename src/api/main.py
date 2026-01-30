@@ -11,7 +11,11 @@ app = FastAPI(title="A/B Testing Experimentation Platform")
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173", "https://ab-testing-frontend.onrender.com"],
+    allow_origins=[
+        "http://localhost:5173", # local dev
+        "https://abexp.tech", # production domain
+        "https://www.abexp.tech"   # Production with www
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
