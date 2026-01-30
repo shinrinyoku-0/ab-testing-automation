@@ -21,9 +21,7 @@ services:
 
   # FastAPI Backend
   backend:
-    build:
-      context: ./src
-      dockerfile: Dockerfile
+    image: trilogy5085/abexp-backend:latest
     container_name: fastapi_backend
     env_file:
       - .env
@@ -40,11 +38,7 @@ services:
 
   # React Frontend
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL}  # Pass build arg for Vite
+    image: trilogy5085/abexp-frontend:latest
     container_name: react_frontend
     depends_on:
       - backend
