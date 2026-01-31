@@ -51,6 +51,11 @@ jobs:
             ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
           cache-from: type=registry,ref=${{ env.FRONTEND_IMAGE }}:latest
           cache-to: type=inline
+      
+      - name: Wait for images to be available
+        run: |
+          echo "Waiting for images to propagate..."
+          sleep 10
 
   deploy:
     name: Deploy to DigitalOcean
@@ -58,6 +63,9 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
       - name: Deploy to DigitalOcean Droplet
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -68,14 +76,17 @@ jobs:
           script: |
             cd /home/ab-testing-automation
             
+            # Pull latest code to get updated docker-compose.yml
+            git pull origin main
+            
             # Stop containers first
             docker-compose down
             
             # Pull latest pre-built images from Docker Hub
             docker-compose pull
             
-            # Start new containers WITHOUT building
-            docker-compose up -d --no-build
+            # Start new containers - if pull succeeded, it won't build
+            docker-compose up -d
             
             # Clean up old images
             docker image prune -f
