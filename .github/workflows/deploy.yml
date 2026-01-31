@@ -68,15 +68,14 @@ jobs:
           script: |
             cd /home/ab-testing-automation
             
-            # Pull latest images
-            docker pull ${{ env.BACKEND_IMAGE }}:latest
-            docker pull ${{ env.FRONTEND_IMAGE }}:latest
-            
-            # Stop and remove old containers
+            # Stop containers first
             docker-compose down
             
-            # Start new containers
-            docker-compose up -d
+            # Pull latest pre-built images from Docker Hub
+            docker-compose pull
+            
+            # Start new containers WITHOUT building
+            docker-compose up -d --no-build
             
             # Clean up old images
             docker image prune -f
