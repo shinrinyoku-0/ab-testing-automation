@@ -1,0 +1,84 @@
+name: Build and Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_USERNAME: trilogy5085
+  BACKEND_IMAGE: trilogy5085/abexp-backend
+  FRONTEND_IMAGE: trilogy5085/abexp-frontend
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          push: true
+          tags: |
+            ${{ env.BACKEND_IMAGE }}:latest
+            ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.BACKEND_IMAGE }}:latest
+          cache-to: type=inline
+      
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.FRONTEND_IMAGE }}:latest
+            ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.FRONTEND_IMAGE }}:latest
+          cache-to: type=inline
+
+  deploy:
+    name: Deploy to DigitalOcean
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy to DigitalOcean Droplet
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            cd /home/ab-testing-automation
+            
+            # Pull latest images
+            docker pull ${{ env.BACKEND_IMAGE }}:latest
+            docker pull ${{ env.FRONTEND_IMAGE }}:latest
+            
+            # Stop and remove old containers
+            docker-compose down
+            
+            # Start new containers
+            docker-compose up -d
+            
+            # Clean up old images
+            docker image prune -f
+            
+            # Show status
+            docker-compose ps
