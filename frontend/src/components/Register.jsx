@@ -8,6 +8,7 @@ const Register = () => {
     email: '',
     username: '',
     password: '',
+    confirmPassword: '',
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -23,10 +24,17 @@ const Register = () => {
     setError('');
     console.log('API URL:', import.meta.env.VITE_API_URL);
     setSuccess(false);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await register(formData);
+      const { confirmPassword, ...registrationData} = formData;
+      await register(registrationData);
       setSuccess(true);
       setTimeout(() => {
         navigate('/login', { state: { message: 'Registration successful! Please log in.' } });
@@ -81,7 +89,18 @@ const Register = () => {
               isDisabled={success}
               variant="bordered"
             />
-
+            <Input
+              label="Confirm Password"
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              isRequired
+              isDisabled={success}
+              variant="bordered"
+              errorMessage={formData.confirmPassword && formData.password !== formData.confirmPassword ? "Passwords do not match" : ""}
+              isInvalid={formData.confirmPassword && formData.password !== formData.confirmPassword}
+            />
             <Button
               type="submit"
               color="primary"
