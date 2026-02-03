@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadFiles, getUploadOptions, loadSampleData, downloadSampleFiles } from '../services/api';
+import { isTokenExpired, getTokenTimeRemaining } from '../utils/auth';
 
 export const useFileUpload = () => {
   const [jsonFile, setJsonFile] = useState(null);
@@ -21,6 +22,43 @@ export const useFileUpload = () => {
   const [submittedExperimentId, setSubmittedExperimentId] = useState('');
   const [metricDefinitions, setMetricDefinitions] = useState(null);
   const navigate = useNavigate();
+  const FORM_STORAGE_KEY = 'unsaved_form_data';
+
+  // auto save form data to localStorage
+  useEffect(() => {
+    if (experimentName || experimentId || selectedOption) {
+      const formData = {
+        experimentName,
+        experimentId,
+        selectedOption,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
+    }
+  }, [experimentName, experimentId, selectedOption]);
+
+  // restore form data on mount
+  useEffect(() => {
+    const savedData = localStorage.getItem(FORM_STORAGE_KEY);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        // Only restore if less than 24 hours old
+        if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+          setExperimentName(parsed.experimentName || '');
+          setExperimentId(parsed.experimentId || '');
+          setSelectedOption(parsed.selectedOption || '');
+          setSuccess('Your previous form data has been restored');
+        } else {
+          localStorage.removeItem(FORM_STORAGE_KEY);
+        }
+      } catch (e) {
+        console.error('Failed to restore form data', e);
+        localStorage.removeItem(FORM_STORAGE_KEY);
+      }
+    }
+  }, []);
+
 
   // fetch upload options on mount
   useEffect(() => {
@@ -295,15 +333,15 @@ export const useFileUpload = () => {
       } else {
         setSuccess('Files uploaded and analyzed successfully!');
         setAnalysisResults(response.analysis);
+
+        localStorage.removeItem(FORM_STORAGE_KEY);
       }
       resetForm();
       
       // Restore metric definitions after reset so they can be used for display names
       setMetricDefinitions(savedMetricDefinitions);
     } catch (err) {
-      if (err.response?.status === 401) {
-        navigate('/login');
-      } else {
+      if (err.response?.status !== 401) {
         setError(err.response?.data?.detail || 'Upload failed');
       }
     } finally {

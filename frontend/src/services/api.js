@@ -14,6 +14,87 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      // token is expired or invalid
+      localStorage.removeItem('token');
+      
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(token => {
+            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+            return api(originalRequest);
+          })
+          .catch(err => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const refreshToken = localStorage.getItem('refresh_token');
+
+      if (!refreshToken) {
+        // No refresh token available, redirect to login
+        isRefreshing = false;
+        localStorage.clear();
+        if (!window.location.pathname.includes('/login') && 
+            !window.location.pathname.includes('/register')) {
+          window.location.href = '/login';
+        }
+        return Promise.reject(error);
+      }
+
+      try {
+        // Request new access token
+        const response = await axios.post(
+          `${API_BASE_URL}/users/refresh`,
+          { refresh_token: refreshToken }
+        );
+
+        const newAccessToken = response.data.access_token;
+        localStorage.setItem('token', newAccessToken);
+
+        // Process queued requests
+        processQueue(null, newAccessToken);
+
+        // Retry original request
+        originalRequest.headers['Authorization'] = 'Bearer ' + newAccessToken;
+        return api(originalRequest);
+
+      } catch (refreshError) {
+        // Refresh failed, logout user
+        processQueue(refreshError, null);
+        localStorage.clear();
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const register = async (userData) => {
   const response = await api.post('/users/register', userData);
   return response.data;
@@ -24,6 +105,8 @@ export const login = async (username, password) => {
   formData.append('username', username);
   formData.append('password', password);
   const response = await api.post('/users/token', formData);
+  localStorage.setItem('token', response.data.access_token);
+  localStorage.setItem('refresh_token', response.data.refresh_token);
   return response.data;
 };
 

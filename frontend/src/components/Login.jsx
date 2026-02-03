@@ -34,6 +34,7 @@ const Login = () => {
     try {
       const data = await login(formData.username, formData.password);
       localStorage.setItem('token', data.access_token);
+      localStorage.setItem('refresh_token', data.refresh_token);
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed');

@@ -2,10 +2,16 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Register from './components/Register';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import { isTokenExpired } from './utils/auth';
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/login" />;
+  if (!token || isTokenExpired()) {
+    localStorage.removeItem('token'); // Clean up expired token
+    return <Navigate to="/login" />;
+  }
+  
+  return children;
 };
 
 function App() {
