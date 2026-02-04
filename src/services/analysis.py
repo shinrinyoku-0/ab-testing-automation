@@ -10,7 +10,7 @@ from .metric_analysis import (
 )
 from .stat_tests import run_stat_tests
 
-def run_experiment_analysis(experiment_id, exposures_df, events_df, metrics_config):
+def run_experiment_analysis(experiment_id, exposures_df, events_df, metrics_config, apply_correction=True):
     """
     Analysis of user uploaded data (validated) - for every metric.
     Perform appropriate statistical tests and return results.
@@ -23,14 +23,19 @@ def run_experiment_analysis(experiment_id, exposures_df, events_df, metrics_conf
     exp_exposures['exposure_time'] = pd.to_datetime(exp_exposures['exposure_time'])
     
     results = {}
+    p_values = []
+    metric_ids = []
     
     for _, metric_config in metrics_config.items():
         metric_id = metric_config['metric_id']
-        
+        metric_ids.append(metric_id)
+
         # User-level analysis for stats
         metric_df = analyze_metric(exp_exposures, events_df, metric_config)
         analysis = run_stat_tests(metric_df, metric_config)
         
+        p_values.append(analysis['p-value'])
+
         # Exposed-based daily time series
         daily_df = analyze_metric_timeseries_exposed_daily(exp_exposures, events_df, metric_config)
         analysis['daily_timeseries'] = daily_df.to_dict('records')
@@ -53,4 +58,29 @@ def run_experiment_analysis(experiment_id, exposures_df, events_df, metrics_conf
         
         results[metric_id] = analysis
     
+    should_correct = apply_correction and len(p_values) >= 3
+
+    if should_correct:
+        from .stat_tests import apply_multiple_testing_correction
+        correction_results = apply_multiple_testing_correction(p_values, method='fdr_bh')
+
+        for i, metric_id in enumerate(metric_ids):
+            results[metric_id]['p_value_raw'] = results[metric_id]['p-value']
+            results[metric_id]['p-value'] = correction_results['corrected_p_values'][i]
+            results[metric_id]['significance'] = 'YES' if correction_results['significant'][i] else 'NO'
+            results[metric_id]['correction_applied'] = True
+            results[metric_id]['correction_method'] = correction_results['method']
+
+        results['_correction_info'] = {
+            'applied': True,
+            'method': 'Benjamini-Hochberg (FDR)',
+            'num_tests': len(p_values),
+            'description': 'P-values adjusted to control false discovery rate across multiple metrics'
+        }
+    else:
+        results['_correction_info'] = {
+            'applied': False,
+            'reason': 'Less than 3 metrics' if len(p_values) < 3 else 'Disabled by user'
+        }
+        
     return results

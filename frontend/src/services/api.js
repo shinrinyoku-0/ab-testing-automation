@@ -118,7 +118,7 @@ export const getUploadOptions = async () => {
 export const uploadFiles = async (
   experimentName, experimentId, jsonFile, 
   exposuresFile, eventsFile, usersFile,
-  selectedOption
+  selectedOption, applyCorrection = true
 ) => {
   const formData = new FormData();
   formData.append('exp_name', experimentName);
@@ -131,6 +131,7 @@ export const uploadFiles = async (
   if (usersFile) {
     formData.append('users_file', usersFile);
   }
+  formData.append('apply_correction', applyCorrection);
   const response = await api.post('/files/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',

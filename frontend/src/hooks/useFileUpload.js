@@ -21,6 +21,8 @@ export const useFileUpload = () => {
   const [submittedExperimentName, setSubmittedExperimentName] = useState('');
   const [submittedExperimentId, setSubmittedExperimentId] = useState('');
   const [metricDefinitions, setMetricDefinitions] = useState(null);
+  const [applyCorrectionState, setApplyCorrection] = useState(true);
+  const [shouldShowCorrectionToggle, setShouldShowCorrectionToggle] = useState(false);
   const navigate = useNavigate();
   const FORM_STORAGE_KEY = 'unsaved_form_data';
 
@@ -148,9 +150,16 @@ export const useFileUpload = () => {
         const text = await file.text();
         const definitions = JSON.parse(text);
         setMetricDefinitions(definitions);
+
+        const metricCount = Object.keys(definitions).length;
+        setShouldShowCorrectionToggle(metricCount >= 3);
+        if (metricCount >= 3) {
+          setApplyCorrection(true);
+        }
       } catch (err) {
         console.error('Error parsing metric definitions:', err);
         setMetricDefinitions(null);
+        setShouldShowCorrectionToggle(false);
       }
     } else {
       setJsonFile(null);
@@ -235,9 +244,16 @@ export const useFileUpload = () => {
         const text = await sampleData.jsonFile.text();
         const definitions = JSON.parse(text);
         setMetricDefinitions(definitions);
+
+        const metricCount = Object.keys(definitions).length;
+        setShouldShowCorrectionToggle(metricCount >= 3);
+        if (metricCount >= 3) {
+          setApplyCorrection(true);
+        }
       } catch (err) {
         console.error('Error parsing sample metric definitions:', err);
         setMetricDefinitions(null);
+        setShouldShowCorrectionToggle(false);
       }
 
       setIsUsingSampleData(true);
@@ -270,6 +286,8 @@ export const useFileUpload = () => {
     setAvailableExperimentIds([]);
     setIsUsingSampleData(false);
     setMetricDefinitions(null);
+    setShouldShowCorrectionToggle(false);
+    setApplyCorrection(true);
 
     // Reset file inputs
     ['jsonFile', 'exposuresFile', 'eventsFile', 'usersFile'].forEach(id => {
@@ -324,7 +342,8 @@ export const useFileUpload = () => {
         exposuresFile, 
         eventsFile,
         usersFile, 
-        selectedOption
+        selectedOption,
+        applyCorrectionState
       );
 
       if (response.processing_error) {
@@ -343,6 +362,7 @@ export const useFileUpload = () => {
     } catch (err) {
       if (err.response?.status !== 401) {
         setError(err.response?.data?.detail || 'Upload failed');
+        console.log(err);
       }
     } finally {
       setLoading(false);
@@ -370,6 +390,9 @@ export const useFileUpload = () => {
     loading,
     analysisResults,
     isUsingSampleData,
+    applyCorrectionState,
+    setApplyCorrection,
+    shouldShowCorrectionToggle,
     
     // Handlers
     handleJsonFileChange,

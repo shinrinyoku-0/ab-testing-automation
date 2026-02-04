@@ -1,5 +1,5 @@
 import { useFileUpload } from '../hooks/useFileUpload';
-import { Alert, Card, CardBody, Button, Divider, Select, SelectItem, Input, Form } from '@heroui/react';
+import { Alert, Card, CardBody, Button, Divider, Select, SelectItem, Input, Form, Switch, Tooltip } from '@heroui/react';
 import FileInput from './FileInput';
 import MetricResult from './MetricResult';
 import { SparklesIcon, ArrowDownTrayIcon, DocumentTextIcon, TableCellsIcon, UserGroupIcon } from '@heroicons/react/24/outline';
@@ -26,6 +26,9 @@ const FileUpload = () => {
     loading,
     analysisResults,
     isUsingSampleData,
+    applyCorrectionState,
+    setApplyCorrection,
+    shouldShowCorrectionToggle,
     handleJsonFileChange,
     handleExposuresFileChange,
     handleEventsFileChange,
@@ -99,8 +102,6 @@ const FileUpload = () => {
       <Card className="shadow-lg">
         <CardBody className="p-8">
           <div className="mt-0 mx-4 my-4">
-            {/* Error Alert - show at top */}
-            {error && <Alert variant="faded" color="danger" title={error} className="mb-4 mt-0" />}
             {/* Form */}
             <Form validationBehavior="native" onSubmit={handleSubmit} className="space-y-8">
               {/* Experiment Details Group */}
@@ -182,7 +183,7 @@ const FileUpload = () => {
                 </div>
 
                 <div className='w-full'>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <FileInput
                       id="jsonFile"
                       label="Metrics Config (JSON)"
@@ -222,6 +223,33 @@ const FileUpload = () => {
                   </div>
                 </div>
               </div>
+              {shouldShowCorrectionToggle && (
+                <div className="bg-warning-50 border border-warning-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center gap-4">
+                    <Switch
+                      isSelected={applyCorrectionState}
+                      onValueChange={setApplyCorrection}
+                      size="sm"
+                      color="warning"
+                    >
+                    </Switch>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-md text-warning-800">Apply Statistical Rigor (Multi-test Correction)</span>
+                        <Tooltip content="When testing multiple metrics simultaneously, this adjustment prevents false positives by controlling the False Discovery Rate using the Benjamini-Hochberg method."></Tooltip>
+                      </div>
+                      <p className="text-sm text-warning-700">
+                        {Object.keys(metricDefinitions || {}).length} metrics detected. 
+                        Recommended to keep this enabled to avoid misleading results.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Alert - show at top */}
+              {error && <Alert variant="faded" color="danger" title={error} className="mb-4 mt-0" />}
+
               {/* Submit Button */}
               <Button
                 type="submit"
@@ -237,14 +265,27 @@ const FileUpload = () => {
             
             {/* Success Alert - show below button */}
             {success && <Alert variant="faded" color="success" title={success} className="mt-4" />}
+            
             {/* Display Results */}
             {analysisResults && (
               <div className="mt-8 pt-8 border-t border-divider">
+                
+                {/* Multiple Testing Correction Info Banner*/}
+                {analysisResults._correction_info?.applied && (
+                  <Alert color="primary" variant="faded" className="mb-6">
+                    <div className="flex items-start gap-2">
+                      <div>
+                        <strong>Multiple testing correction applied:</strong> {analysisResults._correction_info.description}
+                      </div>
+                    </div>
+                  </Alert>
+                )}
+                
                 <h3 className="text-2xl font-bold mb-2">
                   Analysis Results for <span className="text-primary">{submittedExperimentName}</span> - Experiment ID: <span className="text-primary">{submittedExperimentId}</span>
                 </h3>
                 <div className="space-y-6 mt-6">
-                  {Object.entries(analysisResults).map(([metricId, data]) => (
+                  {Object.entries(analysisResults).filter(([metricId]) => !metricId.startsWith('_')).map(([metricId, data]) => (
                     <MetricResult 
                       key={metricId} 
                       metricId={metricId} 

@@ -35,6 +35,7 @@ async def upload_files(
     events_file: UploadFile = File(...),
     users_file: UploadFile = File(None),
     selected_option: str = Form(...),
+    apply_correction: bool = Form(True),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -129,7 +130,8 @@ async def upload_files(
             experiment_id=experiment_id,
             exposures_df=exposures_df,
             events_df=events_df,
-            metrics_config=metrics_config
+            metrics_config=metrics_config,
+            apply_correction=apply_correction
         )
 
         return FileUploadResponse(

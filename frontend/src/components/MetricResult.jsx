@@ -54,6 +54,19 @@ const MetricResult = ({ metricId, data, metricDefinitions }) => {
         >
           {data.significance === 'YES' ? '✓ Significant' : 'Not Significant'}
         </Chip>
+
+        {data.correction_applied && (
+          <Tooltip content={`P-value adjusted using ${data.correction_method} to account for testing multiple metrics simultaneously`}>
+            <Chip 
+              size="sm" 
+              variant="flat" 
+              color="primary"
+              className="cursor-help"
+            >
+              Corrected
+            </Chip>
+          </Tooltip>
+        )}
       </div>
     
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4">
@@ -78,7 +91,12 @@ const MetricResult = ({ metricId, data, metricDefinitions }) => {
                     {data['p-value']?.toFixed(4)}
                   </Chip>
                 </div>
-
+                {data.p_value_raw && (
+                  <div className="flex justify-between items-center text-xs text-gray-500 pl-4 border-l-2 border-gray-200">
+                    <span>Raw p-value:</span>
+                    <span className="font-mono">{data.p_value_raw.toFixed(4)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Lift</span>
                   <Chip 

@@ -1,5 +1,5 @@
 from scipy import stats
-from typing import cast
+from typing import cast, Any
 import numpy as np
 
 def calculate_cohens_h(p1, p2):
@@ -12,6 +12,46 @@ def calculate_cohens_d(mean1, mean2, std1, std2, n1, n2):
     if pooled_std == 0:
         return 0
     return (mean2 - mean1) / pooled_std
+
+def apply_multiple_testing_correction(p_values: list[float], method: str = 'fdr_bh') -> dict:
+    """
+    Apply multiple testing correction to a list of p-values.
+    
+    Args:
+        p_values: List of raw p-values
+        method: 'fdr_bh' for Benjamini-Hochberg or 'bonferroni'
+    
+    Returns:
+        dict with corrected p-values and whether each is significant
+    """
+    from scipy.stats import false_discovery_control
+    
+    if len(p_values) <= 1:
+        return {
+            'corrected_p_values': p_values,
+            'significant': [p < 0.05 for p in p_values],
+            'method': None,
+            'correction_applied': False
+        }
+    
+    if method == 'fdr_bh':
+        # Benjamini-Hochberg FDR correction
+        corrected = false_discovery_control(p_values, method='bh')
+        significant = corrected < 0.05
+    elif method == 'bonferroni':
+        # Bonferroni correction (more conservative)
+        corrected = [min(p * len(p_values), 1.0) for p in p_values]
+        significant = [p < 0.05 for p in corrected]
+    else:
+        raise ValueError(f"Unknown correction method: {method}")
+
+    return {
+        'corrected_p_values': corrected.tolist() if hasattr(corrected, 'tolist') else corrected, # type: ignore
+        'significant': significant.tolist() if hasattr(significant, 'tolist') else significant, # type: ignore
+        'method': method,
+        'correction_applied': True,
+        'num_tests': len(p_values)
+    }
 
 def run_stat_tests(metric_df, metric_config):
     """
