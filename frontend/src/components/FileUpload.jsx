@@ -251,20 +251,22 @@ const FileUpload = () => {
               {error && <Alert variant="faded" color="danger" title={error} className="mb-4 mt-0" />}
 
               {/* Submit Button */}
-              <Button
-                type="submit"
-                color="primary"
-                variant="shadow"
-                size="lg"
-                isDisabled={loading}
-                className="w-full font-semibold h-14"
-              >
-                {loading ? 'Processing...' : 'Upload & Run Analysis'}
-              </Button>
+              <div className="w-full flex items-center justify-center mb-4">
+                <Button
+                  type="submit"
+                  color="primary"
+                  variant="shadow"
+                  size="lg"
+                  isDisabled={loading}
+                  className="font-semibold h-14 px-8"
+                >
+                  {loading ? 'Processing...' : 'Upload & Run Analysis'}
+                </Button>
+              </div>
             </Form>
             
             {/* Success Alert - show below button */}
-            {success && <Alert variant="faded" color="success" title={success} className="mt-4" />}
+            {success && <Alert variant="faded" color="success" title={success} className="mt-4" classNames={{title: "text-md"}}/>}
             
             {/* Display Results */}
             {analysisResults && (
