@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from typing import Any
 from . import models, schemas
 from .auth import get_password_hash
 
@@ -25,7 +26,9 @@ def create_file_upload(
         experiment_id: str, json_filename: str, 
         exposures_filename:  str, events_filename: str,
         users_filename: str | None, 
-        selected_option: str):
+        selected_option: str,
+        analysis_results: Any = None,
+        processing_error: str | None = None):
     db_upload = models.FileUpload(
         user_id=user_id,
         exp_name=exp_name,
@@ -34,7 +37,9 @@ def create_file_upload(
         exposures_filename=exposures_filename,
         events_filename=events_filename,
         users_filename=users_filename,
-        selected_option=selected_option
+        selected_option=selected_option,
+        analysis_results=analysis_results,
+        processing_error=processing_error
     )
     db.add(db_upload)
     db.commit()

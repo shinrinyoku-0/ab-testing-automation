@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime, UTC
 from .database import Base
@@ -27,6 +27,8 @@ class FileUpload(Base):
     users_filename = Column(String, nullable=True)
     selected_option = Column(String)
     upload_date = Column(DateTime, default=datetime.now(UTC))
+    analysis_results = Column(JSON, nullable=True)
+    processing_error = Column(Text, nullable=True)
 
     owner = relationship("User", back_populates="uploads")
 

@@ -35,7 +35,7 @@ class FileUploadResponse(BaseModel):
     users_filename: str | None
     selected_option: str
     upload_date: datetime
-    analysis: Dict[str, Any] | None
+    analysis: Any
     processing_error: str | None
     
     class Config:
